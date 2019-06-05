@@ -7,12 +7,12 @@ M <- function(beta_t) {
   return(diag(length(beta_t)))
 }
 
-sigma_vec = function(beta_t) {
+sigma_vec <- function(beta_t) {
   pi(beta_t)*(1-pi(beta_t))
 }
 
 w_func <- function(beta_t) {
-  w = (dh(X%*%beta_t))^2 / sigma_vec(beta_t)
+  w <- (dh(X%*%beta_t))^2 / sigma_vec(beta_t)
   return(diag(c(w)))
 }
 
