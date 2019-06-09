@@ -4,15 +4,12 @@ m <- function(beta_t) {
 }
 
 M <- function(beta_t) {
-  return(diag(length(beta_t)))
-}
-
-sigma_vec <- function(beta_t) {
-  pi(beta_t)*(1-pi(beta_t))
+  return(1*diag(length(beta_t)))
 }
 
 w_func <- function(beta_t) {
-  w <- (dh(X%*%beta_t))^2 / sigma_vec(beta_t)
+  s <- sigma_vec(beta_t)
+  w = (dh(X%*%beta_t))^2 / s
   return(diag(c(w)))
 }
 
@@ -24,7 +21,7 @@ fisher_func <- function(beta_t) {
 
 y_wgl_func <- function(beta_t) {
   eta_t <- X%*%beta_t
-  y_wgl <- eta_t + (y-h(X%*%beta_t))/dh(X%*%beta_t)
+  y_wgl <- eta_t + (y-h(X%*%beta_t)) / dh(X%*%beta_t)
   return(y_wgl)
 }
 
