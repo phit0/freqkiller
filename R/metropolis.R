@@ -35,3 +35,5 @@ metrohas <- function(startvalue, anzahl_sim){
   print("DONE")
   return(chain)
 }
+
+hey <- "Scheisspfeill"
