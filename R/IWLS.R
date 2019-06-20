@@ -9,7 +9,7 @@ M <- function(beta_t) {
 # write a test for w_func that checks it has appropriate dimensions
 #
 w_func <- function(beta_t, X, y) {
-  s <- sigma_vec(y)
+  s <- sigma_gibbs(y, eta, a_t, b_t)
   w = (dh(X%*%beta_t))^2 / s
   return(diag(c(w)))
 }

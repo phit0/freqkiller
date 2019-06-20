@@ -15,14 +15,15 @@
 #' @export
 #'
 #' @examples metrohas(c(1, 2, 3), 5000)
-metrohas <- function(formula, data, startvalue, anzahl_sim){
+metrohas <- function(formula, data, beta_start, a0 = 0.001, b0 = 0.0001, anzahl_sim){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
-  chain <- array(dim = c(anzahl_sim + 1, length(startvalue)))
+  chain <- array(dim = c(anzahl_sim + 1, length(beta_start)))
 
-  chain[1,] <- startvalue
+  chain[1,] <- beta_start
 
   for (i in 1:anzahl_sim) {
+
     proposal <- proposalfunction(chain[i,], X, y)
 
     enumerator <- (post_beta(proposal, X, y) + cond_proposaldensity(chain[i,], proposal, X, y))
