@@ -9,21 +9,24 @@
 #'
 #' @param startvalue a beta vector
 #' @param anzahl_sim number n of betas to sample, determines the length of the chain
-#'
+#' @param formula object of the type formula or a one that can be coerced into the class formula
 #' @return chain of n betas that will be ploted
 #'  as a histogram or line plot to show the sampling path
 #' @export
 #'
 #' @examples metrohas(c(1, 2, 3), 5000)
-metrohas <- function(startvalue, anzahl_sim){
+metrohas <- function(formula, data, startvalue, anzahl_sim){
+  X <- model.matrix(formula)
+  y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
   chain <- array(dim = c(anzahl_sim + 1, length(startvalue)))
+
   chain[1,] <- startvalue
 
   for (i in 1:anzahl_sim) {
-    proposal <- proposalfunction(chain[i,])
+    proposal <- proposalfunction(chain[i,], X, y)
 
-    enumerator <- (post_beta(proposal) + cond_proposaldensity(chain[i,], proposal))
-    nominator <- (post_beta(chain[i, ]) + cond_proposaldensity(proposal, chain[i, ]))
+    enumerator <- (post_beta(proposal, X, y) + cond_proposaldensity(chain[i,], proposal, X, y))
+    nominator <- (post_beta(chain[i, ], X, y) + cond_proposaldensity(proposal, chain[i, ], X, y))
     alpha <- min(c(enumerator / nominator, 1))
 
     if (runif(1) < alpha) {
@@ -35,3 +38,5 @@ metrohas <- function(startvalue, anzahl_sim){
   print("DONE")
   return(chain)
 }
+
+
