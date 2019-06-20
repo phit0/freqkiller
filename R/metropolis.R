@@ -39,8 +39,3 @@ metrohas <- function(formula, data, startvalue, anzahl_sim){
   return(chain)
 }
 
-hey = "saludos"
-
-hallo = "A buenahora companiero"
-
-letzteprobe = "Viva Costa Rica!"
