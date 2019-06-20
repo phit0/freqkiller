@@ -39,4 +39,4 @@ metrohas <- function(formula, data, startvalue, anzahl_sim){
   return(chain)
 }
 
-
+hey = "saludos"
