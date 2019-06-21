@@ -1,8 +1,6 @@
-sigma_gibbs <- function(y, eta, a_t, b_t) {
-  a <- a_func(y, a_t)
-  b <- b_func(y, eta, b_t)
-  sigma_new <- 1/rgamma(1, shape = a, rate = b)
-  return(sigma_new)
+sigma_gibbs <- function(a_t, b_t) {
+  out <- 1/rgamma(1, shape = a_t, rate = b_t)
+  return(out)
 }
 
 a_func <- function(y, a_t) {
@@ -12,6 +10,6 @@ a_func <- function(y, a_t) {
 }
 
 b_func <- function(y, eta, b_t) {
-  b_new <- b_t + t(y - eta) %*% (y - eta)
+  b_new <- b_t + 0.5 * t(y - eta) %*% (y - eta)
   return(b_new)
 }

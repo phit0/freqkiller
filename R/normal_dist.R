@@ -10,27 +10,18 @@ dh <- function(eta) {
   return(out)
 }
 
-#sigma function
-sigma_vec <- function(y) {
-  out <- rep(1, length(y))
-  return(out)
-}
-
 #beta prior
-prior <- function(beta_t){
-  out <- mvtnorm::dmvnorm(beta_t, mean = m(beta_t), sigma = M(beta_t), log = T)
+prior_func <- function(beta_t, m, M) {
+  out <- mvtnorm::dmvnorm(beta_t,
+                          mean = m,
+                          sigma = M,
+                          log = T)
   return(out)
 }
 
-#likelihood for beta
-like_beta <- function(beta_t, X, y) {
-  mean = X%*%beta_t
-  sigma = diag(length(y))
-  out <- dmvnorm(y, mean, sigma, log=T)
+#likelihood for beta (without assuming independence)
+loglik_func <- function(eta_t, sigma_t, y) {
+  out <- mvtnorm::dmvnorm(y, eta_t, diag(y)*sigma_t, log = T)
   return(out)
 }
 
-#posterior for beta
-post_beta <- function(beta_t, X, y){
-  return(like_beta(beta_t, X, y) + prior(beta_t))
-}
