@@ -1,10 +1,3 @@
-m <- function(beta_t) {
-  return(rep(0,length(beta_t)))
-}
-
-M <- function(beta_t) {
-  return(1*diag(length(beta_t)))
-}
 
 # write a test for w_func that checks it has appropriate dimensions
 #
