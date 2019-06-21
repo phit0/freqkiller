@@ -8,14 +8,12 @@ M <- function(beta_t) {
 
 # write a test for w_func that checks it has appropriate dimensions
 #
-w_func <- function(beta_t, X, y) {
-  s <- sigma_gibbs(y, eta, a_t, b_t)
-  w = (dh(X%*%beta_t))^2 / s
+w_func <- function(eta, sigma_t) {
+  w <- (dh(eta))^2 / sigma_t
   return(diag(c(w)))
 }
 
-fisher_func <- function(beta_t, X, y) {
-  Wt <- w_func(beta_t, X, y)
+fisher_func <- function(beta_t, X, W_t) {
   Ft <- t(X)%*%Wt%*%X + solve(M(beta_t))
   return(Ft)
 }
@@ -27,8 +25,8 @@ y_wgl_func <- function(beta_t, X, y) {
 }
 
 mu_func <- function(beta_t, X, y) {
-  Wt <- w_func(beta_t, X, y)
-  Ft <- fisher_func(beta_t, X, y)
+  Wt <- w_func(eta, a_t, b_t, y)
+  Ft <- fisher_func(beta_t, X,a_t, b_t, y)
   yt_wgl <- y_wgl_func(beta_t, X, y)
   mu <- solve(Ft)%*%t(X)%*%Wt%*%yt_wgl + solve(M(beta_t))%*%m(beta_t)
   return(mu)
@@ -36,7 +34,7 @@ mu_func <- function(beta_t, X, y) {
 
 proposalfunction <- function(beta_t, X, y){
   mu <- mu_func(beta_t, X, y)
-  sigma <- solve(fisher_func(beta_t, X, y))
+  sigma <- solve(fisher_func(beta_t, X,a_t, b_t, y))
   output <- rmvnorm(1, mu, sigma)
   return(as.vector(output))
 }

@@ -21,9 +21,21 @@ metrohas <- function(formula, data, beta_start, a0 = 0.001, b0 = 0.0001, anzahl_
   chain <- array(dim = c(anzahl_sim + 1, length(beta_start)))
 
   chain[1,] <- beta_start
+  a_t <- a0
+  b_t <- b0
 
   for (i in 1:anzahl_sim) {
+    eta <- X%*%chain[i,]
 
+    # update sigma
+    a_t <- a_func(y, a_t)
+    b_t <- b_func(y, eta, b_t)
+    sigma_t <- sigma_gibbs(y, eta, a_t, b_t)
+
+    # IWLS
+    W_t <- w_func(eta, sigma_t)
+
+    Ft <- fisher_func()
     proposal <- proposalfunction(chain[i,], X, y)
 
     enumerator <- (post_beta(proposal, X, y) + cond_proposaldensity(chain[i,], proposal, X, y))
