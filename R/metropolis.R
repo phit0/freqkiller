@@ -15,7 +15,7 @@
 #' @export
 #'
 #' @examples metrohas(c(1, 2, 3), 5000)
-metrohas <- function(formula, data, beta_start, a0 = 0.001, b0 = 0.0001, anzahl_sim){
+metrohas <- function(formula, beta_start, a0 = 0.001, b0 = 0.0001, anzahl_sim, m = rep(0,length(beta_start)), M = diag(length(beta_start))){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
   chain <- array(dim = c(anzahl_sim + 1, length(beta_start)))
