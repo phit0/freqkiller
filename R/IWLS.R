@@ -1,59 +1,33 @@
-m <- function(beta_t) {
-  return(rep(0,length(beta_t)))
-}
-
-M <- function(beta_t) {
-  return(1*diag(length(beta_t)))
-}
 
 # write a test for w_func that checks it has appropriate dimensions
 #
-w_func <- function(beta_t, X, y) {
-  s <- sigma_vec(y)
-  w = (dh(X%*%beta_t))^2 / s
+w_func <- function(eta, sigma_t) {
+  w <- (dh(eta)) ^ 2 / sigma_t
   return(diag(c(w)))
 }
 
-fisher_func <- function(beta_t, X, y) {
-  Wt <- w_func(beta_t, X, y)
-  Ft <- t(X)%*%Wt%*%X + solve(M(beta_t))
-  return(Ft)
+fisher_func <- function(X, W_t, M) {
+  out <- t(X) %*% W_t %*% X + solve(M)
+  return(out)
 }
 
-y_wgl_func <- function(beta_t, X, y) {
-  eta_t <- X%*%beta_t
-  y_wgl <- eta_t + ((y-h(eta_t)) / dh(eta_t))
-  return(y_wgl)
+y_wgl_func <- function(eta_t, y) {
+  out <- eta_t + ((y - h(eta_t)) / dh(eta_t))
+  return(out)
 }
 
-mu_func <- function(beta_t, X, y) {
-  Wt <- w_func(beta_t, X, y)
-  Ft <- fisher_func(beta_t, X, y)
-  yt_wgl <- y_wgl_func(beta_t, X, y)
-  mu <- solve(Ft)%*%t(X)%*%Wt%*%yt_wgl + solve(M(beta_t))%*%m(beta_t)
-  return(mu)
+mu_func <- function(X, Ft, Wt, yt_wgl, M, m) {
+  out <- solve(Ft) %*% t(X) %*% Wt %*% yt_wgl + solve(M) %*% m
+  return(out)
 }
 
-proposalfunction <- function(beta_t, X, y){
-  mu <- mu_func(beta_t, X, y)
-  sigma <- solve(fisher_func(beta_t, X, y))
-  output <- rmvnorm(1, mu, sigma)
-  return(as.vector(output))
+proposalfunction <- function(mu, sigma) {
+  out <- rmvnorm(1, mu, sigma)
+  return(as.vector(out))
 }
 
 
-#' conditional proposal density q
-#'
-#' @param x beta_t or
-#' @param y beta_star
-#'
-#' @return q(beta_t | beta_star) or q(beta_star| beta_t)
-#' @export
-#'
-#' @examples cond_proposaldensity(beta_t, beta_star)
-cond_proposaldensity <- function(beta1, beta2, X, y ) {
-  output <- dmvnorm(beta1,
-                    mean = mu_func(beta2, X, y),
-                    sigma = solve(fisher_func(beta2, X, y)), log=T)
-  return(output)
+cond_proposaldensity <- function(beta, mu, sigma) {
+  out <- dmvnorm(beta, mu, sigma, log = T)
+  return(out)
 }
