@@ -1,4 +1,3 @@
-
 # write a test for w_func that checks it has appropriate dimensions
 #
 w_func <- function(eta, sigma_t) {
@@ -31,3 +30,4 @@ cond_proposaldensity <- function(beta, mu, sigma) {
   out<- dmvnorm(beta, mu, sigma, log=T)
   return(out)
 }
+
