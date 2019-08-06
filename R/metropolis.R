@@ -13,6 +13,8 @@
 #' @return chain of n betas that will be ploted
 #'  as a histogram or line plot to show the sampling path
 #' @export
+#' @importFrom mvtnorm rmvnorm
+#' @importFrom mvtnorm dmvnorm
 #'
 #' @examples metrohas(c(1, 2, 3), 5000)
 metrohas <- function(formula, dist, sigma_start = 1, beta_start,
