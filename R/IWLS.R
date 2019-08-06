@@ -1,8 +1,8 @@
 
 # write a test for w_func that checks it has appropriate dimensions
 
-w_func <- function(eta, sigma_t) {
-  w <- (dh(eta)) ^ 2 / sigma_t
+w_func <- function(eta, sigma_t, dist) {
+  w <- (dh(eta, dist)) ^ 2 / sigma_t
   return(diag(c(w)))
 }
 
@@ -11,8 +11,8 @@ fisher_func <- function(X, W_t, M) {
   return(out)
 }
 
-y_wgl_func <- function(eta_t, y) {
-  out <- eta_t + ((y - h(eta_t)) / dh(eta_t))
+y_wgl_func <- function(eta_t, y, dist) {
+  out <- eta_t + ((y - h(eta_t, dist)) / dh(eta_t, dist))
   return(out)
 }
 
@@ -23,7 +23,7 @@ mu_func <- function(X, Ft, Wt, yt_wgl, M, m) {
 
 #beta prior
 prior_func <- function(beta_t, m, M) {
-  out <- mvtnorm::dmvnorm(beta_t, mean = m, sigma = M, log = T)
+  out <- dmvnorm(beta_t, mean = m, sigma = M, log = T)
   return(out)
 }
 
@@ -37,25 +37,25 @@ cond_proposaldensity <- function(beta, mu, sigma) {
   return(out)
 }
 
-
-#ää################
-
-
 #response function
-h <- function(eta) {
-  out <- exp(eta)
+h <- function(eta, dist) {
+  out <- switch(dist,
+         "poisson" = exp(eta),
+         "normal" = eta)
   return(out)
 }
 
 #first derivative of h
-dh <- function(eta) {
-  out <- exp(eta)
+dh <- function(eta, dist) {
+  out <- switch(dist,
+                "poisson" = exp(eta),
+                "normal" = rep(1, length(eta)))
   return(out)
 }
 
 #likelihood for beta (without assuming independence)
-loglik_func <- function(eta_t, sigma_t, y) {
-  out <- dpois(y, lambda = h(eta_t), log = T)
+loglik_func <- function(eta_t, sigma_t, y, dist) {
+  out <- dpois(y, lambda = h(eta_t, dist), log = T)
   return(sum(out))
 }
 

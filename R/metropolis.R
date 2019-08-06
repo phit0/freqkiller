@@ -13,6 +13,8 @@
 #' @return chain of n betas that will be ploted
 #'  as a histogram or line plot to show the sampling path
 #' @export
+#' @importFrom mvtnorm rmvnorm
+#' @importFrom mvtnorm dmvnorm
 #'
 #' @examples metrohas(c(1, 2, 3), 5000)
 metrohas <- function(formula, dist, sigma_start = 1, beta_start,
@@ -22,11 +24,11 @@ metrohas <- function(formula, dist, sigma_start = 1, beta_start,
   if (dist == "poisson") {
 
     # run algorithm
-    result <- metroPois(formula, beta_start, anzahl_sim, m, M)
+    result <- metroPois(formula, beta_start, anzahl_sim, m, M, dist)
 
   }else if (dist == "normal") {
 
-    result <- metroNorm(formula, sigma_start, beta_start, a0, b0, anzahl_sim, m, M)
+    result <- metroNorm(formula, sigma_start, beta_start, a0, b0, anzahl_sim, m, M, dist)
   }
 
 
