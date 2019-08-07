@@ -55,7 +55,9 @@ dh <- function(eta, dist) {
 
 #likelihood for beta (without assuming independence)
 loglik_func <- function(eta_t, sigma_t, y, dist) {
-  out <- dpois(y, lambda = h(eta_t, dist), log = T)
-  return(sum(out))
+  out <- switch(dist,
+                "poisson" = sum(dpois(y, lambda = h(eta_t, dist), log = T)),
+                "normal" = dmvnorm(y, eta_t, diag(y)*sigma_t, log = T))
+  return(out)
 }
 

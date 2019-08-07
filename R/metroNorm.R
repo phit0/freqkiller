@@ -1,5 +1,5 @@
 
-metroNorm <- function(formula, sigma_start, beta_start, a0, b0, anzahl_sim, m, M){
+metroNorm <- function(formula, sigma_start, beta_start, a0, b0, anzahl_sim, m, M, dist){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
@@ -18,9 +18,9 @@ metroNorm <- function(formula, sigma_start, beta_start, a0, b0, anzahl_sim, m, M
   for (i in 1:anzahl_sim) {
 
     # IWLS
-    W_t <- w_func(eta_t, sigma_t)
+    W_t <- w_func(eta_t, sigma_t, dist)
     F_t <- fisher_func(X, W_t, M)
-    y_wgl_t <- y_wgl_func(eta_t, y)
+    y_wgl_t <- y_wgl_func(eta_t, y, dist)
     mu_t <- mu_func(X, F_t, W_t, y_wgl_t, M, m)
 
     # Pick proposal
@@ -30,9 +30,9 @@ metroNorm <- function(formula, sigma_start, beta_start, a0, b0, anzahl_sim, m, M
     eta_star <- X%*%proposal
 
     # IWLS
-    W_star <- w_func(eta_star, sigma_t)
+    W_star <- w_func(eta_star, sigma_t, dist)
     F_star <- fisher_func(X, W_star, M)
-    y_wgl_star <- y_wgl_func(eta_star, y)
+    y_wgl_star <- y_wgl_func(eta_star, y, dist)
     mu_star <- mu_func(X, F_star, W_star, y_wgl_star, M, m)
 
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, solve(F_star))
@@ -42,8 +42,8 @@ metroNorm <- function(formula, sigma_start, beta_start, a0, b0, anzahl_sim, m, M
     prior_t <- prior_func(chain[i,], m, M)
     prior_star <- prior_func(proposal, m, M)
 
-    loglik_t <- loglik_func(eta_t, sigma_t, y)
-    loglik_star <- loglik_func(eta_star, sigma_t, y)
+    loglik_t <- loglik_func(eta_t, sigma_t, y, dist)
+    loglik_star <- loglik_func(eta_star, sigma_t, y, dist)
 
     alpha <- min(c((prior_star + loglik_star + q_cond_star)
                    / (prior_t + loglik_t + q_cond_t), 1))
