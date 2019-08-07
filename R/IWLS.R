@@ -1,30 +1,36 @@
 
 # write a test for w_func that checks it has appropriate dimensions
 
-w_func <- function(eta, sigma_t, dist) {
-  w <- (dh(eta, dist)) ^ 2 / sigma_t
-  return(diag(c(w)))
-}
-
-fisher_func <- function(X, W_t, M) {
-  out <- t(X) %*% W_t %*% X + solve(M)
+w_func <- function(sigma_t,beta_t, dist,y) {
+  out <- switch(dist,
+                "normal" = diag(length(y))/ sigma_t,
+                "poisson" = "CODE FEHLT HIER!")
   return(out)
 }
 
-y_wgl_func <- function(eta_t, y, dist) {
+fisher_func <- function(sigma_t,beta_t, dist, X, M) {
+  out <- switch(dist,
+                "normal" = (1/sigma_t)*t(X) %*% X + solve(M),
+                "poisson" = "CODE FEHLT HIER")
+  return(out)
+}
+
+y_wgl_func <- function(sigma_t, beta_t, dist,y) {
   out <- switch(dist,
          "normal" = y,
-         "poisson" = eta_t + ((y - h(eta_t, dist)) / dh(eta_t, dist)))
+         "poisson" = eta_t + ((y - exp(eta_t, dist)) / exp(eta_t, dist)))
   return(out)
 }
 
-mu_func <- function(X, Ft, Wt, yt_wgl, M, m) {
-  out <- solve(Ft) %*% t(X) %*% Wt %*% yt_wgl + solve(M) %*% m
+mu_func <- function(sigma_t,beta_t,dist,M, m, X,y) {
+  out <- switch(dist,
+                "normal" = solve(fisher_func(sigma_t,beta_t,dist,X,M)) %*% t(X) %*% w_func(sigma_t,beta_t,dist,y) %*% y_wgl_func(sigma_t,beta_t,dist,y) + solve(M) %*% m,
+                "poisson" = "CODE FEHLT HIER")
   return(out)
 }
 
 #beta prior
-prior_func <- function(beta_t, m, M) {
+prior_func <- function(beta_t,m,M) {
   out <- dmvnorm(beta_t, mean = m, sigma = M, log = T)
   return(out)
 }
@@ -39,27 +45,13 @@ cond_proposaldensity <- function(beta, mu, sigma) {
   return(out)
 }
 
-#response function
-h <- function(eta, dist) {
-  out <- switch(dist,
-         "poisson" = exp(eta),
-         "normal" = eta)
-  return(out)
-}
-
-#first derivative of h
-dh <- function(eta, dist) {
-  out <- switch(dist,
-                "poisson" = exp(eta),
-                "normal" = rep(1, length(eta)))
-  return(out)
-}
 
 #likelihood for beta (without assuming independence)
-loglik_func <- function(eta_t, sigma_t, y, dist) {
+loglik_func <- function(beta_t, sigma_t, y, dist,X) {
   out <- switch(dist,
-                "poisson" = sum(dpois(y, lambda = h(eta_t, dist), log = T)),
-                "normal" = dmvnorm(y, eta_t, diag(y)*sigma_t, log = T))
+                "normal" = dmvnorm(y, X%*%beta_t, diag(length(y))*sigma_t, log = T),
+                "poisson" = sum(dpois(y, lambda = exp(eta_t, dist), log = T)))
+
   return(out)
 }
 

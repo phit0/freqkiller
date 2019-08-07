@@ -20,6 +20,8 @@
 metrohas <- function(formula, dist, sigma_start = 1, beta_start,
                      a0 = 0.001, b0 = 0.0001, anzahl_sim, m = rep(0,length(beta_start)),
                      M = diag(length(beta_start))){
+  X <- model.matrix(formula)
+  y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
 
   if (dist == "poisson") {
 
