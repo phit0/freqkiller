@@ -12,7 +12,9 @@ fisher_func <- function(X, W_t, M) {
 }
 
 y_wgl_func <- function(eta_t, y, dist) {
-  out <- eta_t + ((y - h(eta_t, dist)) / dh(eta_t, dist))
+  out <- switch(dist,
+         "normal" = y,
+         "poisson" = eta_t + ((y - h(eta_t, dist)) / dh(eta_t, dist)))
   return(out)
 }
 
