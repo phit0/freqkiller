@@ -4,7 +4,6 @@ metroNorm <- function(sigma_start, beta_start, a0, b0, anzahl_sim){
 
   chain <- array(dim = c(anzahl_sim + 1, length(beta_start)))
   chain[1,] <- beta_start
-  eta_t <- X%*%beta_start
 
   s_chain <- array(dim = anzahl_sim + 1)
   s_chain[1] <- sigma_start
@@ -26,15 +25,15 @@ metroNorm <- function(sigma_start, beta_start, a0, b0, anzahl_sim){
     F_star <- fisher_func(sigma_t, proposal)
     mu_star <- mu_func(sigma_t, proposal)
 
-    q_cond_star <- cond_proposaldensity(chain[i,], mu_star, solve(F_star))
-    q_cond_t <- cond_proposaldensity(proposal, mu_t, solve(F_t))
+    q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
+    q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)  #invert in function to avoid re-inverting
 
     #Posterior
     prior_t <- prior_func(chain[i,])
     prior_star <- prior_func(proposal)
 
-    loglik_t <- loglik_func(chain[i,], sigma_t)
-    loglik_star <- loglik_func(proposal, sigma_t)
+    loglik_t <- loglik_norm(chain[i,], sigma_t)
+    loglik_star <- loglik_norm(proposal, sigma_t)
 
     alpha <- min(c((prior_star + loglik_star + q_cond_star)
                    / (prior_t + loglik_t + q_cond_t), 1))

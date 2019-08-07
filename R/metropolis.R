@@ -22,17 +22,21 @@ metrohas <- function(formula, dist, sigma_start = 1, beta_start,
                      M = diag(length(beta_start))){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
-  #environment(X) <- as.environment("package:BASS") # for functions
+
+  #####################################################
+  ######   PROBLEM: Wenn X im global environment definiert wird, kommt es zum konflikt!!
   assign("X", X, envir = as.environment("package:BASS"))
   assign("y", y, envir = as.environment("package:BASS"))
 
   M_1 <- solve(M)
+  M_det <- det(M)
   assign("M_1", M_1, envir = as.environment("package:BASS"))
   assign("M", M, envir = as.environment("package:BASS"))
+  assign("M_det", M_det, envir = as.environment("package:BASS"))
   assign("m", m, envir = as.environment("package:BASS"))
-
   assign("dist", dist, envir = as.environment("package:BASS"))
 
+  #environment(X) <- as.environment("package:BASS") # for functions
   if (dist == "poisson") {
 
     # run algorithm
