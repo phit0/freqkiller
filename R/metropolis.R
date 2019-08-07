@@ -22,15 +22,25 @@ metrohas <- function(formula, dist, sigma_start = 1, beta_start,
                      M = diag(length(beta_start))){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
+  #environment(X) <- as.environment("package:BASS") # for functions
+  assign("X", X, envir = as.environment("package:BASS"))
+  assign("y", y, envir = as.environment("package:BASS"))
+
+  M_1 <- solve(M)
+  assign("M_1", M_1, envir = as.environment("package:BASS"))
+  assign("M", M, envir = as.environment("package:BASS"))
+  assign("m", m, envir = as.environment("package:BASS"))
+
+  assign("dist", dist, envir = as.environment("package:BASS"))
 
   if (dist == "poisson") {
 
     # run algorithm
-    result <- metroPois(formula, beta_start, anzahl_sim, m, M, dist)
+    result <- metroPois(beta_start, anzahl_sim)
 
   }else if (dist == "normal") {
 
-    result <- metroNorm(formula, sigma_start, beta_start, a0, b0, anzahl_sim, m, M, dist)
+    result <- metroNorm(sigma_start, beta_start, a0, b0, anzahl_sim)
   }
 
 
