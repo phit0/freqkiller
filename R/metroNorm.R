@@ -1,8 +1,7 @@
 
 metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
 
-
-  chain <- array(dim = c(anzahl_sim + 1, length(beta_start)))
+  chain <- matrix(NA, nrow = anzahl_sim + 1, ncol = length(beta_start))
   chain[1,] <- beta_start
 
   s_chain <- array(dim = anzahl_sim + 1)
@@ -50,5 +49,6 @@ metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
     sigma2_t <- sigma_gibbs(a_t, b_t)
     s_chain[i+1] <- sigma2_t
   }
-return(cbind(chain, s_chain))
+
+return(data.frame(chain, sigma2 = s_chain))
 }
