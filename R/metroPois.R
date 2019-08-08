@@ -1,5 +1,5 @@
 
-metroPois <- function(formula, beta_start, anzahl_sim, m, M, dist){
+metroPois <- function(formula, beta_start, anzahl_sim, m, M){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
@@ -10,36 +10,28 @@ metroPois <- function(formula, beta_start, anzahl_sim, m, M, dist){
   for (i in 1:anzahl_sim) {
 
     eta_t <- X%*%chain[i, ]
-    lambda_t <- h(eta_t, dist)
+    lambda_t <- exp(eta_t)
 
     # IWLS
-    W_t <- w_func(eta_t, lambda_t, dist)
-    F_t <- fisher_func(X, W_t, M)
-    y_wgl_t <- y_wgl_func(eta_t, y, dist)
-    mu_t <- mu_func(X, F_t, W_t, y_wgl_t, M, m)
+    F_t <- fisher_func(lambda_t, beta_t)
+    mu_t <- mu_func(lambda_t, beta_t)
 
     # Pick proposal
-    proposal <- proposalfunction(mu_t, sigma = solve(F_t))
-
-    #Update eta
-    eta_star <- X%*%proposal
-    #lambda_star <- h(eta_star)
+    proposal <- proposalfunction(mu_func(lambda_t,  beta_t), sigma = solve(fisher_func(lambda_t,beta_t)))
 
     # IWLS
-    W_star <- w_func(eta_star, lambda_t, dist)
-    F_star <- fisher_func(X, W_star, M)
-    y_wgl_star <- y_wgl_func(eta_star, y, dist)
-    mu_star <- mu_func(X, F_star, W_star, y_wgl_star, M, m)
+    F_star <- fisher_func(lambda_t, proposal)
+    mu_star <- mu_func(lambda_t, proposal)
 
-    q_cond_star <- cond_proposaldensity(chain[i,], mu_star, solve(F_star))
-    q_cond_t <- cond_proposaldensity(proposal, mu_t, solve(F_t))
+    q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
+    q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)  #invert in function to avoid re-inverting
 
     #Posterior
-    prior_t <- prior_func(chain[i,], m, M)
-    prior_star <- prior_func(proposal, m, M)
+    prior_t <- prior_func(chain[i,])
+    prior_star <- prior_func(proposal)
 
-    loglik_t <- loglik_func(eta_t, lambda_t, y, dist)
-    loglik_star <- loglik_func(eta_star, lambda_t, y, dist)
+    loglik_t <- loglik_func(chain[i,], lambda_t)
+    loglik_star <- loglik_func(proposal, lambda_t)
 
     alpha <- min(c((prior_star + loglik_star + q_cond_star)
                    / (prior_t + loglik_t + q_cond_t), 1))
@@ -49,6 +41,7 @@ metroPois <- function(formula, beta_start, anzahl_sim, m, M, dist){
     }else{
       chain[i+1,] <- chain[i,]
     }
+
   }
   return(chain)
 }
