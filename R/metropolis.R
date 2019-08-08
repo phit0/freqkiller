@@ -17,7 +17,7 @@
 #' @importFrom mvtnorm dmvnorm
 #'
 #' @examples metrohas(c(1, 2, 3), 5000)
-metrohas <- function(formula, dist, sigma_start = 1, beta_start,
+metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
                      a0 = 0.001, b0 = 0.0001, anzahl_sim, m = rep(0,length(beta_start)),
                      M = diag(length(beta_start))){
   X <- model.matrix(formula)
@@ -44,7 +44,7 @@ metrohas <- function(formula, dist, sigma_start = 1, beta_start,
 
   }else if (dist == "normal") {
 
-    result <- metroNorm(sigma_start, beta_start, a0, b0, anzahl_sim)
+    result <- metroNorm(sigma2_start, beta_start, a0, b0, anzahl_sim)
   }
 
 
