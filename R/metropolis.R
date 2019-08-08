@@ -40,7 +40,7 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
   if (dist == "poisson") {
 
     # run algorithm
-    result <- metroPois(beta_start, anzahl_sim)
+    result <- metroPois(formula, beta_start, anzahl_sim)
 
   }else if (dist == "normal") {
 

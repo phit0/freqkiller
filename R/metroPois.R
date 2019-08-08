@@ -9,8 +9,9 @@ metroPois <- function(formula, beta_start, anzahl_sim, m, M){
 
   for (i in 1:anzahl_sim) {
 
-    eta_t <- X%*%chain[i, ]
-    lambda_t <- exp(eta_t)
+    beta_t <- chain[i,]
+
+    lambda_t <- exp(X%*%beta_t)
 
     # IWLS
     F_t <- fisher_func(lambda_t, beta_t)

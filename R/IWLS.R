@@ -1,14 +1,14 @@
-w_func <- function(sigma2_t,beta_t) {
+w_func <- function(sigma2_t, beta_t) {
   out <- switch(dist,
                 "normal" = diag(length(y))/ sigma2_t,
-                "poisson" = diag(exp(X%*%beta_t)))
+                "poisson" = diag(c(exp(X%*%beta_t))))
   return(out)
 }
 
 fisher_func <- function(sigma2_t,beta_t) {
   out <- switch(dist,
                 "normal" = (1/sigma2_t) * t(X) %*% X + M_1,
-                "poisson" = t(X)%*%w_func(sigma2_t,beta_t))
+                "poisson" = t(X)%*%w_func(sigma2_t,beta_t)%*%X + M_1)
   return(out)
 }
 
@@ -52,7 +52,7 @@ cond_proposaldensity <- function(beta, mu, Fisher) {
 loglik_func <- function(beta_t, sigma2_t) {
   out <- switch(dist,
                 "normal" = sum(dnorm(y, X%*%beta_t, sigma2_t, log = T)),
-                "poisson" = sum(dpois(y, lambda = exp(eta_t, dist), log = T)))
+                "poisson" = sum(dpois(y, lambda = exp(X%*%beta_t), log = T)))
 
   return(out)
 }
