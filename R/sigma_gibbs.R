@@ -9,7 +9,8 @@ a_func <- function(y, a_t) {
   return(a_new)
 }
 
-b_func <- function(y, eta, b_t) {
+b_func <- function(y, beta_t, b_t) {
+  eta <- X%*%beta_t
   b_new <- b_t + 0.5 * t(y - eta) %*% (y - eta)
   return(b_new)
 }

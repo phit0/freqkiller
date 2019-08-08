@@ -1,63 +1,60 @@
-
-# write a test for w_func that checks it has appropriate dimensions
-
-w_func <- function(eta, sigma_t, dist) {
-  w <- (dh(eta, dist)) ^ 2 / sigma_t
-  return(diag(c(w)))
-}
-
-fisher_func <- function(X, W_t, M) {
-  out <- t(X) %*% W_t %*% X + solve(M)
+w_func <- function(sigma2_t, beta_t) {
+  out <- switch(dist,
+                "normal" = diag(length(y))/ sigma2_t,
+                "poisson" = diag(c(exp(X%*%beta_t))))
   return(out)
 }
 
-y_wgl_func <- function(eta_t, y, dist) {
-  out <- eta_t + ((y - h(eta_t, dist)) / dh(eta_t, dist))
+fisher_func <- function(sigma2_t,beta_t) {
+  out <- switch(dist,
+                "normal" = (1/sigma2_t) * t(X) %*% X + M_1,
+                "poisson" = t(X)%*%w_func(sigma2_t,beta_t)%*%X + M_1)
   return(out)
 }
 
-mu_func <- function(X, Ft, Wt, yt_wgl, M, m) {
-  out <- solve(Ft) %*% t(X) %*% Wt %*% yt_wgl + solve(M) %*% m
+y_wgl_func <- function(beta_t) {
+  out <- switch(dist,
+                "normal" = y,
+                "poisson" = X%*%beta_t + ((y - exp(X%*%beta_t)) / exp(X%*%beta_t)))
+  return(out)
+}
+
+mu_func <- function(sigma2_t,beta_t) {
+  out <- switch(dist,
+                "normal" = solve(fisher_func(sigma2_t,beta_t)) %*% (t(X) %*% w_func(sigma2_t,beta_t) %*% y_wgl_func(beta_t) + M_1 %*% m),
+                "poisson" = solve(fisher_func(sigma2_t,beta_t))%*% (t(X) %*% w_func(sigma2_t,beta_t)%*% y_wgl_func(beta_t) + M_1 %*% m))
   return(out)
 }
 
 #beta prior
-prior_func <- function(beta_t, m, M) {
-  out <- dmvnorm(beta_t, mean = m, sigma = M, log = T)
+prior_func <- function(beta_t) {
+  #out <- dmvnorm(beta_t, mean = m, sigma = M, log = T)
+  n <- length(beta_t)
+  out <- -0.5 * n * log(2*pi) -0.5 * log(M_det) - 0.5 * t(beta_t - m) %*% M_1 %*% (beta_t - m)
   return(out)
 }
 
-proposalfunction <- function(mu, sigma) {
-  out <- rmvnorm(1, mu, sigma)
+
+proposalfunction <- function(mu, sigma2) {
+  out <- rmvnorm(1, mu, sigma2)
   return(as.vector(out))
 }
 
-cond_proposaldensity <- function(beta, mu, sigma) {
-  out <- dmvnorm(beta, mu, sigma, log = T)
+cond_proposaldensity <- function(beta, mu, Fisher) {
+  #out <- dmvnorm(beta, mu, solve(Fisher), log = T)
+  n <- length(beta)
+  out <- -0.5 * n * log(2*pi) - 0.5 * log(1 / det(Fisher)) - 0.5 * t(beta - mu)%*%Fisher%*%(beta - mu)
   return(out)
 }
 
-#response function
-h <- function(eta, dist) {
-  out <- switch(dist,
-         "poisson" = exp(eta),
-         "normal" = eta)
-  return(out)
-}
-
-#first derivative of h
-dh <- function(eta, dist) {
-  out <- switch(dist,
-                "poisson" = exp(eta),
-                "normal" = rep(1, length(eta)))
-  return(out)
-}
 
 #likelihood for beta (without assuming independence)
-loglik_func <- function(eta_t, sigma_t, y, dist) {
+loglik_func <- function(beta_t, sigma2_t) {
   out <- switch(dist,
-                "poisson" = sum(dpois(y, lambda = h(eta_t, dist), log = T)),
-                "normal" = dmvnorm(y, eta_t, diag(y)*sigma_t, log = T))
+                "normal" = sum(dnorm(y, X%*%beta_t, sigma2_t, log = T)),
+                "poisson" = sum(dpois(y, lambda = exp(X%*%beta_t), log = T)))
+
   return(out)
 }
+
 
