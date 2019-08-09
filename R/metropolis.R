@@ -42,9 +42,12 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
     # run algorithm
     result <- metroPois(formula, beta_start, anzahl_sim)
 
-  }else if (dist == "normal") {
-
+  }
+  if  (dist == "normal") {
     result <- metroNorm(sigma2_start, beta_start, a0, b0, anzahl_sim)
+  }
+  if (dist == "bernoulli"){
+    result <- metroBer(formula, beta_start,anzahl_sim)
   }
 
 
