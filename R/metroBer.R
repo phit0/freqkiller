@@ -32,8 +32,8 @@ metroBer <- function(formula, beta_start, anzahl_sim, m, M){
     loglik_t <- loglik_func(chain[i,], sigma2_t)
     loglik_star <- loglik_func(proposal, sigma2_t)
 
-    alpha <- min(c(exp(prior_star + loglik_star + q_cond_star
-                   - prior_t - loglik_t - q_cond_t), 1))
+    alpha <- min(c((prior_star * loglik_star * q_cond_star)
+                   /(prior_t * loglik_t * q_cond_t), 1))
 
     if (runif(1) < alpha) {
       chain[i+1,] <- proposal

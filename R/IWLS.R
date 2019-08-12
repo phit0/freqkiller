@@ -44,9 +44,10 @@ mu_func <- function(sigma2_t,beta_t) {
 prior_func <- function(beta_t) {
   #out <- dmvnorm(beta_t, mean = m, sigma = M, log = T)
   n <- length(beta_t)
-  out <- -0.5 * n * log(2*pi) -0.5 * log(M_det) - 0.5 * t(beta_t - m) %*% M_1 %*% (beta_t - m)
+  out <- switch(dist,
+                "normal" = -0.5 * n * log(2*pi) -0.5 * log(M_det) - 0.5 * t(beta_t - m) %*% M_1 %*% (beta_t - m),
+                "bernoulli" = M_det^(-0.5) * exp(-0.5 * t(beta_t - m)%*%solve(M)%*%(beta_t - m)))
   return(out)
-  ?dgamma
 }
 
 
@@ -65,15 +66,15 @@ cond_proposaldensity <- function(beta, mu, Fisher) {
   return(out)
 }
 
-?rnorm
 #likelihood for beta (without assuming independence)
 loglik_func <- function(beta_t, sigma2_t) {
   out <- switch(dist,
                 "normal" = sum(dnorm(y, X%*%beta_t, sqrt(sigma2_t), log = T)),
                 "poisson" = sum(dpois(y, lambda = exp(X%*%beta_t), log = T)),
-                "bernoulli" = sum(dbinom(y,size = 1, prob  = h(X%*%beta_t), log = T)))
+                "bernoulli" = sum(dbinom(y, size = 1, prob  = h(X%*%beta_t), log = F)))
 
   return(out)
 }
+
 
 
