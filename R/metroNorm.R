@@ -1,5 +1,5 @@
 
-metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
+metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim, thinning_lag){
 
   chain <- matrix(NA, nrow = anzahl_sim + 1, ncol = length(beta_start))
   chain[1,] <- beta_start
@@ -48,7 +48,12 @@ metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
     b_t <- b_func(y, chain[i + 1, ], b_t)
     sigma2_t <- sigma_gibbs(a_t, b_t)
     s_chain[i+1] <- sigma2_t
-  }
 
-return(data.frame(chain, sigma2 = s_chain))
+  }
+  if (thinning_lag > 0) {
+    s_chain <- s_chain[seq(1, length(s_chain), thinning_lag)]
+  }
+  acf(kette$sigma2,
+      main = expression(paste("Autocorrelation of ", sigma^2)))
+  return(list(betas = chain, sigma2 = s_chain))
 }

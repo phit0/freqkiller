@@ -19,7 +19,7 @@
 #' @examples metrohas(c(1, 2, 3), 5000)
 metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
                      a0 = 0.001, b0 = 0.0001, anzahl_sim, m = rep(0,length(beta_start)),
-                     M = diag(length(beta_start))){
+                     M = diag(length(beta_start)), thinning_lag = 0){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
 
@@ -44,7 +44,7 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
 
   }else if (dist == "normal") {
 
-    result <- metroNorm(sigma2_start, beta_start, a0, b0, anzahl_sim)
+    result <- metroNorm(sigma2_start, beta_start, a0, b0, anzahl_sim, thinning_lag)
   }
 
 
