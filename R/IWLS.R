@@ -4,10 +4,9 @@ h <- function(x){            #using the Wiemann approach!
   return(1/(1+exp(-x)))
 }
 
-dh <- function(pi){
-  return((1/(exp(pi)+1)) - (1/(exp(pi)+1)^2))  #using peruvian approach
+dh <- function(x){
+  return((1/(exp(x)+1)) - (1/(exp(x)+1)^2))  #using peruvian approach
 }
-
 
 w_func <- function(sigma2_t, beta_t) {
   out <- switch(dist,
@@ -66,13 +65,11 @@ cond_proposaldensity <- function(beta, mu, Fisher) {
 #likelihood for beta (without assuming independence)
 loglik_func <- function(beta_t, sigma2_t) {
   out <- switch(dist,
-                "normal" = sum(dnorm(y, X%*%beta_t, sigma2_t, log = T)),
+                "normal" = sum(dnorm(y, X%*%beta_t, sqrt(sigma2_t), log = T)),
                 "poisson" = sum(dpois(y, lambda = exp(X%*%beta_t), log = T)),
                 "bernoulli" = sum(dbinom(y,size = 1, prob  = h(X%*%beta_t), log = T)))
 
   return(out)
 }
-
-
 
 
