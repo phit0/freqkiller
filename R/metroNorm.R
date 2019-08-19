@@ -1,9 +1,11 @@
-
 metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
 
+  # matrix for betas
   chain <- matrix(NA, nrow = anzahl_sim + 1, ncol = length(beta_start))
   chain[1,] <- beta_start
-
+  # vector for alphas
+  alphas <- matrix(data = NA, nrow = anzahl_sim + 1)
+  # vector for sigmas
   s_chain <- array(dim = anzahl_sim + 1)
   s_chain[1] <- sigma2_start
   sigma2_t <- sigma2_start
@@ -27,17 +29,19 @@ metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
     q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)  #invert in function to avoid re-inverting
 
-    #Posterior
+    # Posterior
     prior_t <- prior_func(chain[i,])
     prior_star <- prior_func(proposal)
-
+    # likelihoods
     loglik_t <- loglik_func(chain[i,], sigma2_t)
     loglik_star <- loglik_func(proposal, sigma2_t)
+    # acceptance probability
+    alpha <- min(c(prior_star + loglik_star + q_cond_star
+                   - prior_t - loglik_t - q_cond_t, 0))
+    # add alphas to output
+    alphas[i] <- alpha
 
-    alpha <- min(c(exp(prior_star + loglik_star + q_cond_star
-                   - prior_t - loglik_t - q_cond_t), 1))
-
-    if (runif(1) < alpha) {
+    if (log(runif(1)) < alpha) {
       chain[i+1,] <- proposal
     }else{
       chain[i+1,] <- chain[i,]
@@ -50,5 +54,5 @@ metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
     s_chain[i+1] <- sigma2_t
   }
 
-return(data.frame(chain, sigma2 = s_chain))
+return(data.frame(chain, sigma2 = s_chain, alpha = alphas))
 }

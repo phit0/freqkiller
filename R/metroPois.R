@@ -4,6 +4,9 @@ metroPois <- function(formula, beta_start, anzahl_sim, m, M){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
 
+  alphas <- matrix(data = NA, nrow = anzahl_sim + 1)
+
+
   chain <- array(dim = c(anzahl_sim + 1, length(beta_start)))
   chain[1,] <- beta_start
 
@@ -34,15 +37,26 @@ metroPois <- function(formula, beta_start, anzahl_sim, m, M){
     loglik_t <- loglik_func(chain[i,], lambda_t)
     loglik_star <- loglik_func(proposal, lambda_t)
 
-    alpha <- min(c((prior_star + loglik_star + q_cond_star)
-                   / (prior_t + loglik_t + q_cond_t), 1))
+   # "p_t", "L_t", "q_star_t", "p_star", "L_star", "q_t_star"
 
-    if (runif(1) < alpha) {
+    # lpq_values[i, 1] <- prior_t
+    # lpq_values[i, 2] <- loglik_t
+    # lpq_values[i, 3] <- q_cond_t
+    # lpq_values[i, 4] <- prior_star
+    # lpq_values[i, 5] <- loglik_star
+    # lpq_values[i, 6] <- q_cond_star
+
+    alpha <- min(c(prior_star + loglik_star + q_cond_star
+                   - prior_t - loglik_t - q_cond_t, 0))
+
+    alphas[i] <- alpha
+
+    if (log(runif(1)) < alpha) {
       chain[i+1,] <- proposal
     }else{
       chain[i+1,] <- chain[i,]
     }
 
   }
-  return(chain)
+  return(cbind(chain, alphas))
 }
