@@ -1,4 +1,12 @@
-metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
+#############################################
+###         MCMC for normal data          ###
+#############################################
+metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, anzahl_sim, dist){
+
+  X <- model.matrix(formula)
+  y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
+  M_1 <- solve(M)
+  M_det <- det(M)
 
   # matrix for betas
   chain <- matrix(NA, nrow = anzahl_sim + 1, ncol = length(beta_start))
@@ -16,25 +24,26 @@ metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
   for (i in 1:anzahl_sim) {
 
     # IWLS
-    F_t <- fisher_func(sigma2_t, beta_t)
-    mu_t <- mu_func(sigma2_t, beta_t)
+    F_t <- fisher_func(sigma2_t, beta_t, y, X, M_1, dist)
+    mu_t <- mu_func(sigma2_t, beta_t, y, X, M_1, m, dist)
 
     # Pick proposal
-    proposal <- proposalfunction(mu_func(sigma2_t,  beta_t), sigma = solve(fisher_func(sigma2_t,beta_t)))
+    proposal <- proposalfunction(mu_func(sigma2_t,  beta_t, y, X, M_1, m, dist),
+                sigma = solve(fisher_func(sigma2_t, beta_t, y, X, M_1, dist)))
 
     # IWLS
-    F_star <- fisher_func(sigma2_t, proposal)
-    mu_star <- mu_func(sigma2_t, proposal)
+    F_star <- fisher_func(sigma2_t, proposal, y, X, M_1, dist)
+    mu_star <- mu_func(sigma2_t, proposal, y, X, M_1, m, dist)
 
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
     q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)  #invert in function to avoid re-inverting
 
     # Posterior
-    prior_t <- prior_func(chain[i,])
-    prior_star <- prior_func(proposal)
+    prior_t <- prior_func(chain[i,], m, M_1, M_det)
+    prior_star <- prior_func(proposal, m, M_1, M_det)
     # likelihoods
-    loglik_t <- loglik_func(chain[i,], sigma2_t)
-    loglik_star <- loglik_func(proposal, sigma2_t)
+    loglik_t <- loglik_func(chain[i,], sigma2_t, y, X, dist)
+    loglik_star <- loglik_func(proposal, sigma2_t, y, X, dist)
     # acceptance probability
     alpha <- min(c(prior_star + loglik_star + q_cond_star
                    - prior_t - loglik_t - q_cond_t, 0))
@@ -49,7 +58,7 @@ metroNorm <- function(sigma2_start, beta_start, a0, b0, anzahl_sim){
 
     # update sigma
     a_t <- a_func(y, a_t)
-    b_t <- b_func(y, chain[i + 1, ], b_t)
+    b_t <- b_func(chain[i + 1, ], y, X, b_t)
     sigma2_t <- sigma_gibbs(a_t, b_t)
     s_chain[i+1] <- sigma2_t
   }

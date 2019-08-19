@@ -1,14 +1,17 @@
-
-metroPois <- function(formula, beta_start, anzahl_sim, m, M){
+#############################################
+###         MCMC for poisson data         ###
+#############################################
+metroPois <- function(formula, beta_start, m, M, anzahl_sim, dist){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
-
-  alphas <- matrix(data = NA, nrow = anzahl_sim + 1)
-
-
-  chain <- array(dim = c(anzahl_sim + 1, length(beta_start)))
+  M_1 <- solve(M)
+  M_det <- det(M)
+  # matrix for betas
+  chain <- matrix(NA, nrow = anzahl_sim + 1, ncol = length(beta_start))
   chain[1,] <- beta_start
+  # vector for alphas
+  alphas <- matrix(data = NA, nrow = anzahl_sim + 1)
 
   for (i in 1:anzahl_sim) {
 
@@ -17,34 +20,26 @@ metroPois <- function(formula, beta_start, anzahl_sim, m, M){
     lambda_t <- exp(X%*%beta_t)
 
     # IWLS
-    F_t <- fisher_func(lambda_t, beta_t)
-    mu_t <- mu_func(lambda_t, beta_t)
+    F_t <- fisher_func(lambda_t, beta_t, y, X, M_1, dist)
+    mu_t <- mu_func(lambda_t, beta_t, y, X, M_1, m, dist)
 
     # Pick proposal
-    proposal <- proposalfunction(mu_func(lambda_t,  beta_t), sigma = solve(fisher_func(lambda_t,beta_t)))
+    proposal <- proposalfunction(mu_func(lambda_t,  beta_t, y, X, M_1, m, dist),
+                sigma = solve(fisher_func(lambda_t, beta_t, y, X, M_1, dist)))
 
     # IWLS
-    F_star <- fisher_func(lambda_t, proposal)
-    mu_star <- mu_func(lambda_t, proposal)
+    F_star <- fisher_func(lambda_t, proposal, y, X, M_1, dist)
+    mu_star <- mu_func(lambda_t, proposal, y, X, M_1, m, dist)
 
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
     q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)  #invert in function to avoid re-inverting
 
     #Posterior
-    prior_t <- prior_func(chain[i,])
-    prior_star <- prior_func(proposal)
+    prior_t <- prior_func(chain[i,], m, M_1, M_det)
+    prior_star <- prior_func(proposal, m, M_1, M_det)
 
-    loglik_t <- loglik_func(chain[i,], lambda_t)
-    loglik_star <- loglik_func(proposal, lambda_t)
-
-   # "p_t", "L_t", "q_star_t", "p_star", "L_star", "q_t_star"
-
-    # lpq_values[i, 1] <- prior_t
-    # lpq_values[i, 2] <- loglik_t
-    # lpq_values[i, 3] <- q_cond_t
-    # lpq_values[i, 4] <- prior_star
-    # lpq_values[i, 5] <- loglik_star
-    # lpq_values[i, 6] <- q_cond_star
+    loglik_t <- loglik_func(chain[i,], lambda_t, y, X, dist)
+    loglik_star <- loglik_func(proposal, lambda_t, y, X, dist)
 
     alpha <- min(c(prior_star + loglik_star + q_cond_star
                    - prior_t - loglik_t - q_cond_t, 0))
