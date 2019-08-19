@@ -48,7 +48,7 @@ metroPois <- function(formula, beta_start, anzahl_sim, m, M){
 
     alpha <- min(c(prior_star + loglik_star + q_cond_star
                    - prior_t - loglik_t - q_cond_t, 0))
-
+    # add alphas to output
     alphas[i] <- alpha
 
     if (log(runif(1)) < alpha) {
@@ -58,5 +58,5 @@ metroPois <- function(formula, beta_start, anzahl_sim, m, M){
     }
 
   }
-  return(cbind(chain, alphas))
+  return(data.frame(chain, alpha = alphas))
 }
