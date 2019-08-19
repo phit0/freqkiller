@@ -1,7 +1,7 @@
 #############################################
-###         MCMC for poisson data         ###
+###         MCMC for bernoulli data       ###
 #############################################
-metroPois <- function(formula, beta_start, m, M, anzahl_sim, dist){
+metroBer <- function(formula, beta_start, m, M, anzahl_sim, dist){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
@@ -11,25 +11,24 @@ metroPois <- function(formula, beta_start, m, M, anzahl_sim, dist){
   chain <- matrix(NA, nrow = anzahl_sim + 1, ncol = length(beta_start))
   chain[1,] <- beta_start
   # vector for alphas
-  alphas <- matrix(data = NA, nrow = anzahl_sim + 1)
+  alphas <- matrix(NA, nrow = anzahl_sim + 1)
 
   for (i in 1:anzahl_sim) {
 
     beta_t <- chain[i,]
-
-    lambda_t <- exp(X%*%beta_t)
+    sigma2_t <- dh(X%*%beta_t) #this holds due to var(y) = h(eta)*(1-h(eta)) = dh(eta)
 
     # IWLS
-    F_t <- fisher_func(lambda_t, beta_t, y, X, M_1, dist)
-    mu_t <- mu_func(lambda_t, beta_t, y, X, M_1, m, dist)
+    F_t <- fisher_func(sigma2_t, beta_t, y, X, M_1, dist)
+    mu_t <- mu_func(sigma2_t, beta_t, y, X, M_1, m, dist)
 
     # Pick proposal
-    proposal <- proposalfunction(mu_func(lambda_t,  beta_t, y, X, M_1, m, dist),
-                sigma = solve(fisher_func(lambda_t, beta_t, y, X, M_1, dist)))
+    proposal <- proposalfunction(mu_func(sigma2_t,  beta_t, y, X, M_1, m, dist),
+                sigma = solve(fisher_func(sigma2_t, beta_t, y, X, M_1, dist)))
 
     # IWLS
-    F_star <- fisher_func(lambda_t, proposal, y, X, M_1, dist)
-    mu_star <- mu_func(lambda_t, proposal, y, X, M_1, m, dist)
+    F_star <- fisher_func(sigma2_t, proposal, y, X, M_1, dist)
+    mu_star <- mu_func(sigma2_t, proposal, y, X, M_1, m, dist)
 
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
     q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)  #invert in function to avoid re-inverting
@@ -38,14 +37,13 @@ metroPois <- function(formula, beta_start, m, M, anzahl_sim, dist){
     prior_t <- prior_func(chain[i,], m, M_1, M_det)
     prior_star <- prior_func(proposal, m, M_1, M_det)
 
-    loglik_t <- loglik_func(chain[i,], lambda_t, y, X, dist)
-    loglik_star <- loglik_func(proposal, lambda_t, y, X, dist)
+    loglik_t <- loglik_func(chain[i,], sigma2_t, y, X, dist)
+    loglik_star <- loglik_func(proposal, sigma2_t, y, X, dist)
 
     alpha <- min(c(prior_star + loglik_star + q_cond_star
                    - prior_t - loglik_t - q_cond_t, 0))
     # add alphas to output
     alphas[i] <- alpha
-
     if (log(runif(1)) < alpha) {
       chain[i+1,] <- proposal
     }else{

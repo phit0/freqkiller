@@ -23,28 +23,20 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
 
-  #####################################################
-  ######   PROBLEM: Wenn X im global environment definiert wird, kommt es zum konflikt!!
-  assign("X", X, envir = as.environment("package:BASS"))
-  assign("y", y, envir = as.environment("package:BASS"))
-
-  M_1 <- solve(M)
-  M_det <- det(M)
-  assign("M_1", M_1, envir = as.environment("package:BASS"))
-  assign("M", M, envir = as.environment("package:BASS"))
-  assign("M_det", M_det, envir = as.environment("package:BASS"))
-  assign("m", m, envir = as.environment("package:BASS"))
-  assign("dist", dist, envir = as.environment("package:BASS"))
-
-  #environment(X) <- as.environment("package:BASS") # for functions
   if (dist == "poisson") {
 
     # run algorithm
-    result <- metroPois(formula, beta_start, anzahl_sim)
-
-  }else if (dist == "normal") {
-
-    result <- metroNorm(sigma2_start, beta_start, a0, b0, anzahl_sim, thinning_lag)
+    result <- metroPois(formula, beta_start, m, M, anzahl_sim, dist)
+  }
+  else if  (dist == "normal") {
+    result <- metroNorm(formula, beta_start, sigma2_start, a0, b0, m, M, anzahl_sim, thinning_lag dist)
+  }
+  else if (dist == "bernoulli"){
+    result <- metroBer(formula, beta_start, m, M, anzahl_sim, dist)
+  }
+  else {
+    stop("Wrong distribution name. Choose one of the implemented distributions:
+         \"normal\", \"poisson\" or \"bernoulli\".")
   }
 
 
