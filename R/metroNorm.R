@@ -1,9 +1,7 @@
 #############################################
 ###         MCMC for normal data          ###
 #############################################
-metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, anzahl_sim, dist){
-
-metroNorm <- function(formula, sigma2_start, beta_start, a0, b0, anzahl_sim, thinning_lag, dist){
+metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, anzahl_sim, thinning_lag, dist){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
   M_1 <- solve(M)
@@ -64,11 +62,11 @@ metroNorm <- function(formula, sigma2_start, beta_start, a0, b0, anzahl_sim, thi
     s_chain[i+1] <- sigma2_t
 
   }
+  # end of iterations
   if (thinning_lag > 0) {
     s_chain <- s_chain[seq(1, length(s_chain), thinning_lag)]
   }
-  acf(kette$sigma2,
-      main = expression(paste("Autocorrelation of ", sigma^2)))
+  acf(s_chain, main = expression(paste("Autocorrelation of ", sigma^2)))
 
 return(data.frame(chain, sigma2 = s_chain, alpha = alphas))
 }

@@ -29,7 +29,7 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
     result <- metroPois(formula, beta_start, m, M, anzahl_sim, dist)
   }
   else if  (dist == "normal") {
-    result <- metroNorm(formula, beta_start, sigma2_start, a0, b0, m, M, anzahl_sim, thinning_lag dist)
+    result <- metroNorm(formula, beta_start, sigma2_start, a0, b0, m, M, anzahl_sim, thinning_lag, dist)
   }
   else if (dist == "bernoulli"){
     result <- metroBer(formula, beta_start, m, M, anzahl_sim, dist)
