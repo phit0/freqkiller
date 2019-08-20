@@ -6,7 +6,6 @@ test_that("Algorithm runs", {
                          beta_start = c(0, 0),
                          anzahl_sim = 1000)
   medi1 <- median(test_chain[, 1])
-  plot(test_chain[, 1], type ="l")
 })
 
 

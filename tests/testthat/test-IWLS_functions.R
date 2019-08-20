@@ -1,11 +1,10 @@
-context("")
+context("IWLS functions behave as expected")
 
 
 # test_that("sigma_vec is positive",{
 #   expect_true(sigma_vec(c(0, 0)) >= 0)
 #   expect_true(sigma_vec(0) >= 0)
 # })
-rnorm(4)
 
 test_that("w_func works", {
 t1 <- sum(w_func(sigma2_t = 1, beta_t =  c(1,2), y = c(-0.9, 0.7, -0.35, -0.85),

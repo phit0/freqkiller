@@ -22,10 +22,33 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
                      M = diag(length(beta_start)), thinning_lag = 0){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
+  # check dimensions are ok
+  if (dim(X)[2] != length(beta_start)) {
+    stop("X and beta_start have non-conformable dimensions")
+  }
+  if (length(y) != dim(X)[1]){
+    stop("response and covariables are of different length")
+  }
+  if (length(sigma2_start) != 1) {
+    stop("sigma2_start should be scalar")
+  }
+  if (length(m) != length(beta_start)) {
+    stop("m should be a vector of length ", ncol(X))
+  }
+  if (ncol(M) != length(beta_start)){
+    stop("M should be a square matrix with dimensions ", ncol(X), "x", ncol(X))
+  }
 
+  # check nonsingularity of M
+  if (nrow(M) != ncol(M) | qr(M)$rank != ncol(M)) {
+    stop("M must be a full rank square matrix")
+  }else if (det(M) <= 0) {
+    stop("M must be positive definite")
+    }
+  #######################################################
+                    # Choose  distribution
+  #######################################################
   if (dist == "poisson") {
-
-    # run algorithm
     result <- metroPois(formula, beta_start, m, M, anzahl_sim, dist)
   }
   else if  (dist == "normal") {
@@ -38,7 +61,6 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
     stop("Wrong distribution name. Choose one of the implemented distributions:
          \"normal\", \"poisson\" or \"bernoulli\".")
   }
-
 
   print("DONE")
   return(result)

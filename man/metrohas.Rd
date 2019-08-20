@@ -27,6 +27,3 @@ the loglikelihood, log-prior distribution and conditional proposal density compa
 beta. If the new value performs good enough, it has a higher chance to be stored in the chain of
 betas. If rejected, the current beta is stored in the chain and the algorithm proceeds to the next iteration.
 }
-\examples{
-metrohas(c(1, 2, 3), 5000)
-}
