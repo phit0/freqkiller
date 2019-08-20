@@ -4,12 +4,16 @@
 \alias{metrohas}
 \title{Sample betas from a proposal density using MCMC}
 \usage{
-metrohas(startvalue, anzahl_sim)
+metrohas(formula, dist, sigma2_start = 1, beta_start, a0 = 0.001,
+  b0 = 1e-04, anzahl_sim, m = rep(0, length(beta_start)),
+  M = diag(length(beta_start)), thinning_lag = 0)
 }
 \arguments{
-\item{startvalue}{a beta vector}
+\item{formula}{object of the type formula or a one that can be coerced into the class formula}
 
 \item{anzahl_sim}{number n of betas to sample, determines the length of the chain}
+
+\item{startvalue}{a beta vector}
 }
 \value{
 chain of n betas that will be ploted
