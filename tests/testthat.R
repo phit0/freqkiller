@@ -1,4 +1,4 @@
 library(testthat)
-library(BASS)
+library(frequentistkiller)
 
-test_check("BASS")
+test_check("frequentistkiller")

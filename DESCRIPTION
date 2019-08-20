@@ -1,18 +1,28 @@
-Package: BASS
-Title: What the Package Does (One Line, Title Case)
+Package: frequentistkiller
+Title: Sample betas from a proposal density using MCMC
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Rafael Andres Stefan",
+           family = "Arce Gullién",
            role = c("aut", "cre"),
            email = "first.last@example.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+    person(given = "Philipp",
+           family = "Schad",
+           role = c("aut", "cre"),
+           email = "philipp.schad@stud.uni-goettingen.de",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: The function executes the Metropolis Hashtings Algorithm, where a Normal proposal density
+              based on prior information and the current beta is generated (and updated) by means of iteratively
+              weighted least squares. A random sample from the proposal density is then evaluated according to
+              the loglikelihood, log-prior distribution and conditional proposal density compared to the previous
+              beta. If the new value performs good enough, it has a higher chance to be stored in the chain of
+              betas. If rejected, the current beta is stored in the chain and the algorithm proceeds to the next iteration..
+License: What license it uses 
 Encoding: UTF-8
 LazyData: true
-url: https://github.com/phit0/BASS
-bugreports: https://github.com/phit0/BASS/issues
+url: https://github.com/phit0/frequentistkiller
+bugreports: https://github.com/phit0/frequentistkiller/issues
 Suggests: 
     testthat (>= 2.1.0)
 RoxygenNote: 6.1.1
