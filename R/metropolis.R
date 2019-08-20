@@ -1,5 +1,4 @@
-#'
-#'
+#' @title Main function
 #'
 #' @param formula object of the type formula or a one that can be coerced into the class formula
 #' @param beta_start a beta vector
@@ -15,6 +14,7 @@
 #' @export
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom mvtnorm dmvnorm
+#' @import stats
 #'
 #' @examples
 metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
