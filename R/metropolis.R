@@ -16,7 +16,7 @@
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom mvtnorm dmvnorm
 #'
-#' @examples metrohas(c(1, 2, 3), 5000)
+#' @examples
 metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
                      a0 = 0.001, b0 = 0.0001, anzahl_sim, m = rep(0,length(beta_start)),
                      M = diag(length(beta_start)), thinning_lag = 0){
