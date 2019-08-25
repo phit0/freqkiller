@@ -1,19 +1,19 @@
 #############################################
 ###         MCMC for bernoulli data       ###
 #############################################
-metroBer <- function(formula, beta_start, m, M, anzahl_sim, dist){
+metroBer <- function(formula, beta_start, m, M, number_it, dist){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
   M_1 <- solve(M)
   M_det <- det(M)
   # matrix for betas
-  chain <- matrix(NA, nrow = anzahl_sim + 1, ncol = length(beta_start))
+  chain <- matrix(NA, nrow = number_it + 1, ncol = length(beta_start))
   chain[1,] <- beta_start
   # vector for alphas
-  alphas <- matrix(NA, nrow = anzahl_sim + 1)
+  alphas <- matrix(NA, nrow = number_it + 1)
 
-  for (i in 1:anzahl_sim) {
+  for (i in 1:number_it) {
 
     beta_t <- chain[i,]
     sigma2_t <- dh(X%*%beta_t) #this holds due to var(y) = h(eta)*(1-h(eta)) = dh(eta)
@@ -40,8 +40,7 @@ metroBer <- function(formula, beta_start, m, M, anzahl_sim, dist){
     loglik_t <- loglik_func(chain[i,], sigma2_t, y, X, dist)
     loglik_star <- loglik_func(proposal, sigma2_t, y, X, dist)
 
-    alpha <- min(c(prior_star + loglik_star + q_cond_star
-                   - prior_t - loglik_t - q_cond_t, 0))
+    alpha <- min(c(prior_star + loglik_star + q_cond_star - prior_t - loglik_t - q_cond_t, 0))
     # add alphas to output
     alphas[i] <- alpha
     if (log(runif(1)) < alpha) {
