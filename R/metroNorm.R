@@ -3,10 +3,6 @@
 #############################################
 metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it, thinning_lag, dist){
 
-  if (beta_start == "ml_estimator"){
-    beta_start = beta_init(formula,dist)
-  }
-
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
   M_1 <- solve(M)
