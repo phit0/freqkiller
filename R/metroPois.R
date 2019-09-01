@@ -3,6 +3,10 @@
 #############################################
 metroPois <- function(formula, beta_start, m, M, number_it, dist){
 
+  if (beta_start == "ml_estimator"){
+    beta_start = beta_init(formula,dist)
+  }
+
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
   M_1 <- solve(M)
@@ -24,8 +28,7 @@ metroPois <- function(formula, beta_start, m, M, number_it, dist){
     mu_t <- mu_func(lambda_t, beta_t, y, X, M_1, m, dist)
 
     # Pick proposal
-    proposal <- proposalfunction(mu_func(lambda_t,  beta_t, y, X, M_1, m, dist),
-                sigma = solve(fisher_func(lambda_t, beta_t, y, X, M_1, dist)))
+    proposal <- proposalfunction(mu_t, solve(F_t))
 
     # IWLS
     F_star <- fisher_func(lambda_t, proposal, y, X, M_1, dist)

@@ -17,9 +17,9 @@
 #' @importFrom mvtnorm dmvnorm
 #'
 #' @examples
-metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
-                     a0 = 0.001, b0 = 0.001, number_it, m = rep(0,length(beta_start)),
-                     M = diag(length(beta_start)), thinning_lag = 0){
+metrohas <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimator",
+                     a0 = 0.001, b0 = 0.001, number_it, m = rep(0,ncol(model.matrix(formula))),
+                     M = diag(ncol(model.matrix(formula))), thinning_lag = 0){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
 

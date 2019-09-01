@@ -64,7 +64,6 @@ proposalfunction <- function(mu, sigma2) {
 }
 
 cond_proposaldensity <- function(beta, mu, Fisher) {
-  #out <- dmvnorm(beta, mu, solve(Fisher), log = T)
   n <- length(beta)
   out <- -0.5 * n * log(2*pi) - 0.5 * log(1 / det(Fisher)) - 0.5 * t(beta - mu)%*%Fisher%*%(beta - mu)
   return(out)
@@ -81,4 +80,10 @@ loglik_func <- function(beta_t, sigma2_t, y, X, dist) {
   return(out)
 }
 
-
+#beta start
+beta_init <- function(formula,dist){
+  out <- switch(dist,
+                "normal" = lm(formula)$coefficients,
+                "poisson" = glm(formula,family = poisson(link = log))$coefficients,
+                "bernoulli" = glm(formula,family = binomial(link = logit))$coefficients)
+}
