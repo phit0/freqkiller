@@ -2,6 +2,11 @@
 ###         MCMC for normal data          ###
 #############################################
 metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it, thinning_lag, dist){
+
+  if (beta_start == "ml_estimator"){
+    beta_start = beta_init(formula,dist)
+  }
+
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
   M_1 <- solve(M)
@@ -27,8 +32,7 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
     mu_t <- mu_func(sigma2_t, beta_t, y, X, M_1, m, dist)
 
     # Pick proposal
-    proposal <- proposalfunction(mu_func(sigma2_t,  beta_t, y, X, M_1, m, dist),
-                sigma = solve(fisher_func(sigma2_t, beta_t, y, X, M_1, dist)))
+    proposal <- proposalfunction(mu_t, solve(F_t))
 
     # IWLS
     F_star <- fisher_func(sigma2_t, proposal, y, X, M_1, dist)
