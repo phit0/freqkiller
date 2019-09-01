@@ -23,8 +23,10 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimator
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
 
+  if(is.character(beta_start)){
   if (beta_start == "ml_estimator"){
     beta_start = beta_init(formula,dist)
+  }
   }
 
   if (dist == "poisson") {
