@@ -19,27 +19,29 @@
 #' @examples
 metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
                      a0 = 0.001, b0 = 0.001, number_it, m = rep(0,length(beta_start)),
-                     M = diag(length(beta_start)), thinning_lag = 0){
+                     M = diag(length(beta_start)), thinning_lag = 0, burnin = 1){
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
 
   if (dist == "poisson") {
 
     # run algorithm
-    result <- metroPois(formula, beta_start, m, M, number_it, dist)
+    chain <- metroPois(formula, beta_start, m, M, number_it, dist)
   }
   else if  (dist == "normal") {
-    result <- metroNorm(formula, beta_start, sigma2_start, a0, b0, m, M, number_it, thinning_lag, dist)
+    chain <- metroNorm(formula, beta_start, sigma2_start, a0, b0, m, M, number_it, thinning_lag, dist)
   }
   else if (dist == "bernoulli"){
-    result <- metroBer(formula, beta_start, m, M, number_it, dist)
+    chain <- metroBer(formula, beta_start, m, M, number_it, dist)
   }
   else {
     stop("Wrong distribution name. Choose one of the implemented distributions:
          \"normal\", \"poisson\" or \"bernoulli\".")
   }
-
-
+  chain <- chain[burnin:number_it, ]
+  result <- list(chain = chain, thinning = thinning_lag, number_it = number_it,
+                 beta_start = beta_start)
+  class(result) <- append("metrohas", "list")
   print("DONE")
   return(result)
 }

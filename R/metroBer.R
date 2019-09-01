@@ -11,7 +11,7 @@ metroBer <- function(formula, beta_start, m, M, number_it, dist){
   chain <- matrix(NA, nrow = number_it + 1, ncol = length(beta_start))
   chain[1,] <- beta_start
   # vector for alphas
-  alphas <- matrix(NA, nrow = number_it + 1)
+  #alphas <- matrix(NA, nrow = number_it + 1)
 
   for (i in 1:number_it) {
 
@@ -42,7 +42,7 @@ metroBer <- function(formula, beta_start, m, M, number_it, dist){
 
     alpha <- min(c(prior_star + loglik_star + q_cond_star - prior_t - loglik_t - q_cond_t, 0))
     # add alphas to output
-    alphas[i] <- alpha
+    #alphas[i] <- alpha
     if (log(runif(1)) < alpha) {
       chain[i+1,] <- proposal
     }else{
@@ -50,5 +50,6 @@ metroBer <- function(formula, beta_start, m, M, number_it, dist){
     }
 
   }
-  return(data.frame(chain, alpha = alphas))
+  colnames(chain) <- c("intercept", colnames(X)[-1])
+  return(data.frame(chain))
 }
