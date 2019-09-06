@@ -44,10 +44,14 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimator
     stop("Wrong distribution name. Choose one of the implemented distributions:
          \"normal\", \"poisson\" or \"bernoulli\".")
   }
+  # cut off burn in phase
   chain <- chain[burnin:number_it, ]
+  # gather objects for the output in a list
   result <- list(chain = chain, thinning = thinning_lag, number_it = number_it,
-                 beta_start = beta_start)
+                 beta_start = beta_start, m = m, M = M, sigma2_start = sigma2_start, dist = dist)
+  # define a second class "metrohas" for the output, in order to use the summary()
   class(result) <- append("metrohas", "list")
+
   print("DONE")
   return(result)
 }

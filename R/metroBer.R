@@ -49,6 +49,7 @@ metroBer <- function(formula, beta_start, m, M, number_it, dist){
     }
 
   }
-  colnames(chain) <- c("intercept", colnames(X)[-1])
-  return(data.frame(chain))
+  # add covariable names
+  colnames(chain) <- colnames(X)
+  return(chain)
 }
