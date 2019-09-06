@@ -16,23 +16,30 @@
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom mvtnorm dmvnorm
 #'
-#' @examples metrohas(c(1, 2, 3), 5000)
-metrohas <- function(formula, dist, sigma2_start = 1, beta_start,
-                     a0 = 0.001, b0 = 0.0001, anzahl_sim, m = rep(0,length(beta_start)),
-                     M = diag(length(beta_start)), thinning_lag = 0){
+#' @examples
+metrohas <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimator",
+                     a0 = 0.001, b0 = 0.001, number_it, m = rep(0,ncol(model.matrix(formula))),
+                     M = diag(ncol(model.matrix(formula))), thinning_lag = 0){
+
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
+
+  if(is.character(beta_start)){
+  if (beta_start == "ml_estimator"){
+    beta_start = beta_init(formula,dist)
+  }
+  }
 
   if (dist == "poisson") {
 
     # run algorithm
-    result <- metroPois(formula, beta_start, m, M, anzahl_sim, dist)
+    result <- metroPois(formula, beta_start, m, M, number_it, dist)
   }
   else if  (dist == "normal") {
-    result <- metroNorm(formula, beta_start, sigma2_start, a0, b0, m, M, anzahl_sim, thinning_lag, dist)
+    result <- metroNorm(formula, beta_start, sigma2_start, a0, b0, m, M, number_it, thinning_lag, dist)
   }
   else if (dist == "bernoulli"){
-    result <- metroBer(formula, beta_start, m, M, anzahl_sim, dist)
+    result <- metroBer(formula, beta_start, m, M, number_it, dist)
   }
   else {
     stop("Wrong distribution name. Choose one of the implemented distributions:

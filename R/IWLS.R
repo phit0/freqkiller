@@ -1,11 +1,13 @@
 # functions for Bernoulli
 
-h <- function(x){            #using the Wiemann approach!
+h <- function(x){
   return(1/(1+exp(-x)))
 }
 
 dh <- function(x){
-  return((1/(exp(x)+1)) - (1/(exp(x)+1)^2))  #using peruvian approach
+  out = exp(x)/(1+exp(x))^2
+  result <- ifelse(is.nan(out),0,out)          #using 1-time L`hospital
+  return(result)
 }
 
 w_func <- function(sigma2_t, beta_t, y, X, dist) {
@@ -27,7 +29,7 @@ fisher_func <- function(sigma2_t, beta_t, y, X, M_1, dist) {
 y_wgl_func <- function(beta_t, y, X, dist) {
   out <- switch(dist,
                 "normal" = y,
-                "poisson" = X%*%beta_t + ((y - exp(X%*%beta_t)) / exp(X%*%beta_t)),
+                "poisson" = X%*%beta_t + (y/exp(X%*%beta_t) - 1),
                 "bernoulli" = X%*%beta_t + (y-h(X%*%beta_t))/dh(X%*%beta_t))
   return(out)
 }
@@ -62,7 +64,6 @@ proposalfunction <- function(mu, sigma2) {
 }
 
 cond_proposaldensity <- function(beta, mu, Fisher) {
-  #out <- dmvnorm(beta, mu, solve(Fisher), log = T)
   n <- length(beta)
   out <- -0.5 * n * log(2*pi) - 0.5 * log(1 / det(Fisher)) - 0.5 * t(beta - mu)%*%Fisher%*%(beta - mu)
   return(out)
@@ -79,4 +80,10 @@ loglik_func <- function(beta_t, sigma2_t, y, X, dist) {
   return(out)
 }
 
-
+#beta start
+beta_init <- function(formula,dist){
+  out <- switch(dist,
+                "normal" = lm(formula)$coefficients,
+                "poisson" = glm(formula,family = poisson(link = log))$coefficients,
+                "bernoulli" = glm(formula,family = binomial(link = logit))$coefficients)
+}
