@@ -1,4 +1,4 @@
-# functions for Bernoulli!
+# functions for Bernoulli!!
 
 h <- function(x){
   return(1/(1+exp(-x)))
