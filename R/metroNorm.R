@@ -12,9 +12,10 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
   chain <- matrix(NA, nrow = number_it + 1, ncol = length(beta_start))
   chain[1,] <- beta_start
   # vector for alphas
-  alphas <- matrix(data = NA, nrow = number_it + 1)
+  # alphas <- matrix(data = NA, nrow = number_it + 1)
+
   # vector for sigmas
-  s_chain <- array(dim = number_it + 1)
+  s_chain <- matrix(NA, nrow = number_it + 1, ncol = 1)
   s_chain[1] <- sigma2_start
   sigma2_t <- sigma2_start
 
@@ -46,7 +47,7 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
     # acceptance probability
     alpha <- min(c(prior_star + loglik_star + q_cond_star - prior_t - loglik_t - q_cond_t, 0))
     # add alphas to output
-    alphas[i] <- alpha
+    # alphas[i] <- alpha
 
     if (log(runif(1)) < alpha) {
       chain[i+1,] <- proposal
@@ -65,7 +66,11 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
   if (thinning_lag > 0) {
     s_chain <- s_chain[seq(1, length(s_chain), thinning_lag)]
   }
-  acf(s_chain, main = expression(paste("Autocorrelation of ", sigma^2)))
+  # acf(s_chain, main = expression(paste("Autocorrelation of ", sigma^2)))
 
-return(data.frame(chain, sigma2 = s_chain, alpha = alphas))
+  # add covariable names
+  colnames(chain) <- colnames(X)
+  colnames(s_chain) <- "variance"
+
+return(cbind(chain, s_chain))
 }
