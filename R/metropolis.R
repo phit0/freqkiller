@@ -19,14 +19,12 @@
 #' @examples
 metrohas <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimator",
                      a0 = 0.001, b0 = 0.001, number_it, m = rep(0,ncol(model.matrix(formula))),
-                     M = diag(ncol(model.matrix(formula))), thinning_lag = 0, burnin = 1){
-  X <- model.matrix(formula)
-  y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
+                     M = diag(ncol(model.matrix(formula))), thinning_lag = 0, burnin = 100){
 
   if(is.character(beta_start)){
-  if (beta_start == "ml_estimator"){
+    if (beta_start == "ml_estimator"){
     beta_start = beta_init(formula,dist)
-  }
+    }
   }
 
   if (dist == "poisson") {
@@ -48,7 +46,8 @@ metrohas <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimator
   chain <- chain[burnin:number_it, ]
   # gather objects for the output in a list
   result <- list(chain = chain, thinning = thinning_lag, number_it = number_it,
-                 beta_start = beta_start, m = m, M = M, sigma2_start = sigma2_start, dist = dist)
+                 beta_start = beta_start, m = m, M = M, sigma2_start = sigma2_start,
+                 burnin = burnin, dist = dist, formula = formula)
   # define a second class "metrohas" for the output, in order to use the summary()
   class(result) <- append("metrohas", "list")
 

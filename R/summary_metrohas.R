@@ -20,22 +20,32 @@ summary.metrohas <- function(result) {
       res$coefficients[i, "97.5% quantile"] <- quantile(chain[, i], probs = 0.975)
     }
   }
+  ###########################################################
+  ####                 output             ###################
+  ###########################################################
 
-  # output
-  cat("\n", "Startvalues for beta: ", round(result$beta_start, digits = 4),
-              collapse = " ", "\n", "\n")
+  ## call
+  cat("\nCall: \nmetrohas(formula = ", deparse(result$formula),
+      ",", "number_it =", result$number_it, ",", "dist =", result$dist, ")\n")
+
+  ## start values
+  cat("\nStartvalues for beta: ", round(result$beta_start, digits = 4),
+              collapse = " ", "\n")
   if (result$dist == "normal") { # startvalue for sigma of the gibbs sampler (normal only)
-    cat("Startvalue for variance: ", result$sigma2_start, "\n", "\n")
+    cat("\nStartvalue for variance: ", result$sigma2_start, "\n")
   }
+  ## Burnin
+  cat("\nBurn in iterations: ", result$burnin, "\n")
+
   ## print the coefficients
-  cat("Coefficients:\n")
+  cat("\nCoefficients:\n")
   print(res$coefficients, digits = 4, print.gap = 2)
 
   ## print prior parameters
   cat(rep("~", 30), "\n")
-  cat("Prior asumptions for estimated parameters: \n M \n")
+  cat("Prior asumptions for estimated parameters: \nCovariance Matrix \'M\': \n")
   print(result$M)
-  cat("\n m \n")
+  cat("\nExpected value \'m\': \n")
   print(result$m)
   cat(rep("~", 30), "\n")
 
@@ -51,5 +61,4 @@ summary.metrohas <- function(result) {
   class(res) <- "summary.metrohas"
 }
 
-?cat
 

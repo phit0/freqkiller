@@ -66,7 +66,7 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
   if (thinning_lag > 0) {
     s_chain <- s_chain[seq(1, length(s_chain), thinning_lag)]
   }
-  acf(s_chain, main = expression(paste("Autocorrelation of ", sigma^2)))
+  # acf(s_chain, main = expression(paste("Autocorrelation of ", sigma^2)))
 
   # add covariable names
   colnames(chain) <- colnames(X)
