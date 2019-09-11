@@ -4,16 +4,17 @@
 \alias{metrohas}
 \title{Sample betas from a proposal density using MCMC}
 \usage{
-metrohas(formula, dist, sigma2_start = 1, beta_start, a0 = 0.001,
-  b0 = 1e-04, anzahl_sim, m = rep(0, length(beta_start)),
-  M = diag(length(beta_start)), thinning_lag = 0)
+metrohas(formula, dist, sigma2_start = 1, beta_start = "ml_estimator",
+  a0 = 0.001, b0 = 0.001, number_it, m = rep(0,
+  ncol(model.matrix(formula))), M = diag(ncol(model.matrix(formula))),
+  thinning_lag = 1, burnin = 500)
 }
 \arguments{
 \item{formula}{object of the type formula or a one that can be coerced into the class formula}
 
-\item{anzahl_sim}{number n of betas to sample, determines the length of the chain}
-
 \item{startvalue}{a beta vector}
+
+\item{anzahl_sim}{number n of betas to sample, determines the length of the chain}
 }
 \value{
 chain of n betas that will be ploted
@@ -26,7 +27,4 @@ weighted least squares. A random sample from the proposal density is then evalua
 the loglikelihood, log-prior distribution and conditional proposal density compared to the previous
 beta. If the new value performs good enough, it has a higher chance to be stored in the chain of
 betas. If rejected, the current beta is stored in the chain and the algorithm proceeds to the next iteration.
-}
-\examples{
-metrohas(c(1, 2, 3), 5000)
 }

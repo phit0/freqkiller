@@ -6,7 +6,7 @@ summary.metrohas <- function(result) {
                          quantile(chain, probs = 0.025), quantile(chain, probs = 0.975)),
                          nrow = 1)
     colnames(res$coefficients) <- c("mean", "median", "sd", "2.5% quantile", "97.5% quantile")
-    rownames(res$coefficients) <- ifelse(is.null(names(x1)), "x1", names(x1))
+    rownames(res$coefficients) <- ifelse(is.null(names(chain)), "x1", names(chain))
   }else{ # if multivariate
     res$coefficients <- matrix(NA, nrow = ncol(chain), ncol = 5)
     colnames(res$coefficients) <- c("mean", "median", "sd", "2.5% quantile", "97.5% quantile")
@@ -20,6 +20,7 @@ summary.metrohas <- function(result) {
       res$coefficients[i, "97.5% quantile"] <- quantile(chain[, i], probs = 0.975)
     }
   }
+
   ###########################################################
   ####                 output             ###################
   ###########################################################
@@ -31,34 +32,39 @@ summary.metrohas <- function(result) {
   ## start values
   cat("\nStartvalues for beta: ", round(result$beta_start, digits = 4),
               collapse = " ", "\n")
-  if (result$dist == "normal") { # startvalue for sigma of the gibbs sampler (normal only)
+  ## startvalue for sigma of the gibbs sampler (normal only)
+  if (result$dist == "normal") {
     cat("\nStartvalue for variance: ", result$sigma2_start, "\n")
   }
-  ## Burnin
-  cat("\nBurn in iterations: ", result$burnin, "\n")
 
   ## print the coefficients
   cat("\nCoefficients:\n")
   print(res$coefficients, digits = 4, print.gap = 2)
 
   ## print prior parameters
-  cat(rep("~", 30), "\n")
-  cat("Prior asumptions for estimated parameters: \nCovariance Matrix \'M\': \n")
+  cat("\n", rep("~", 30), "\n")
+  cat("Prior asumptions for estimated parameters: \nCovariance \'M\': \n")
   print(result$M)
   cat("\nExpected value \'m\': \n")
   print(result$m)
   cat(rep("~", 30), "\n")
 
-  if (result$thinning == 0) { # thinning
-    cat("\n No thinning was  performed (!)")
+  ## Number of iterations
+  cat("\nNumber of Metropolis-Hastings iterations: ",
+      (result$number_it + result$burnin) * result$thinning_lag, "\n")
+  ## Burnin
+  cat("Burn in iterations: ", result$burnin, "\n")
+  ## thinning
+  if (result$thinning == 1) {
+    cat("No thinning was  performed (!)\n")
   }else{
-    cat("\n", "Thinning was performed with k = ", result$thinning)
+    cat("Thinning: Every k =", result$thinning_lag, " sample was retained\n")
   }
+  cat(rep("-", 30), "\n")
+  ## Number of samples drawn
+  cat("Number of remaining samples: ", result$number_it, "\n")
 
-  cat("\n", "Number of Metropolis-Hastings iterations: ", result$number_it, "\n")
-
-  # define class for summary object
-  class(res) <- "summary.metrohas"
+  invisible(res)
 }
 
 
