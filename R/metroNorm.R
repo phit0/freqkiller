@@ -60,12 +60,8 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
     b_t <- b_func(chain[i + 1, ], y, X, b_t)
     sigma2_t <- sigma_gibbs(a_t, b_t)
     s_chain[i+1] <- sigma2_t
+  }
 
-  }
-  # end of iterations
-  if (thinning_lag > 0) {
-    s_chain <- s_chain[seq(1, length(s_chain), thinning_lag)]
-  }
   # acf(s_chain, main = expression(paste("Autocorrelation of ", sigma^2)))
 
   # add covariable names
