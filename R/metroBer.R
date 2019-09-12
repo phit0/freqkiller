@@ -48,6 +48,11 @@ metroBer <- function(formula, beta_start, m, M, number_it, dist){
       chain[i+1,] <- chain[i,]
     }
 
+    # Check for startvalue issue at iteration 1000
+    if (i == 1000 & length(unique(chain[1:1000, ])) == 2) {
+      warning("Proposals are not being accepted in the chain...
+                Try different starting values or use the default \"ml_estimate\".")
+    }
   }
   # add covariable names
   colnames(chain) <- colnames(X)

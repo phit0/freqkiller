@@ -39,10 +39,10 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
     q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)  #invert in function to avoid re-inverting
 
     # Posterior
-    prior_t <- prior_func(chain[i,], m, M_1, M_det)
+    prior_t <- prior_func(chain[i, ], m, M_1, M_det)
     prior_star <- prior_func(proposal, m, M_1, M_det)
     # likelihoods
-    loglik_t <- loglik_func(chain[i,], sigma2_t, y, X, dist)
+    loglik_t <- loglik_func(chain[i, ], sigma2_t, y, X, dist)
     loglik_star <- loglik_func(proposal, sigma2_t, y, X, dist)
     # acceptance probability
     alpha <- min(c(prior_star + loglik_star + q_cond_star - prior_t - loglik_t - q_cond_t, 0))
@@ -50,9 +50,9 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
     # alphas[i] <- alpha
 
     if (log(runif(1)) < alpha) {
-      chain[i+1,] <- proposal
+      chain[i + 1, ] <- proposal
     }else{
-      chain[i+1,] <- chain[i,]
+      chain[i + 1, ] <- chain[i, ]
     }
 
     # update sigma
@@ -60,9 +60,13 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
     b_t <- b_func(chain[i + 1, ], y, X, b_t)
     sigma2_t <- sigma_gibbs(a_t, b_t)
     s_chain[i+1] <- sigma2_t
-  }
 
-  # acf(s_chain, main = expression(paste("Autocorrelation of ", sigma^2)))
+    # Check for startvalue issue at iteration 1000
+    if (i == 1000 & length(unique(chain[1:1000, ])) == 2) {
+      warning("Proposals are not being accepted in the chain...
+                Try different starting values or use the default \"ml_estimate\".")
+    }
+  }
 
   # add covariable names
   colnames(chain) <- colnames(X)

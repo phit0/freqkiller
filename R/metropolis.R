@@ -17,14 +17,17 @@
 #' @importFrom mvtnorm dmvnorm
 #'
 #' @examples
-metrohas <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimator",
-                     a0 = 0.001, b0 = 0.001, number_it, m = rep(0,ncol(model.matrix(formula))),
+metrohas <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimate",
+                     a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
                      M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 500){
   # check if default or manual startvalue
-  if(is.character(beta_start)){
-    if (beta_start == "ml_estimator"){
-    beta_start = beta_init(formula,dist)
-    }
+  if(is.character(beta_start)) {
+    if (beta_start == "ml_estimate") {
+    beta_start <- beta_init(formula,dist)
+    }else {
+    stop("beta_start can be either a numeric
+               vector of appropriate length or default \"ml_estimator\"")
+      }
   }
   # check nonzero starting values for variance
   if (sigma2_start == 0) {
