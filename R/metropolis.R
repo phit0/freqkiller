@@ -17,7 +17,7 @@
 #' @importFrom mvtnorm dmvnorm
 #'
 #' @examples
-frequentistkiller <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimate",
+frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
                      a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
                      M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 500){
   # check if default or manual startvalue
@@ -29,10 +29,6 @@ frequentistkiller <- function(formula, dist, sigma2_start = 1, beta_start = "ml_
                vector of appropriate length or default \"ml_estimator\"")
       }
   }
-  # check nonzero starting values for variance
-  if (sigma2_start == 0) {
-    stop("starting value for variance cannot be zero")
-  }
 
   # increase number of iterations if thinning will be performed
   num_it <- (number_it + burnin) * thinning_lag
@@ -43,7 +39,7 @@ frequentistkiller <- function(formula, dist, sigma2_start = 1, beta_start = "ml_
     chain <- metroPois(formula, beta_start, m, M, num_it, dist)
   }
   else if  (dist == "normal") {
-    chain <- metroNorm(formula, beta_start, sigma2_start, a0, b0, m, M, num_it, thinning_lag, dist)
+    chain <- metroNorm(formula, beta_start, a0, b0, m, M, num_it, thinning_lag, dist)
   }
   else if (dist == "bernoulli"){
     chain <- metroBer(formula, beta_start, m, M, num_it, dist)
@@ -61,7 +57,7 @@ frequentistkiller <- function(formula, dist, sigma2_start = 1, beta_start = "ml_
 
   # gather objects for the output in a list
   result <- list(chain = chain, thinning_lag = thinning_lag, number_it = number_it,
-                 beta_start = beta_start, m = m, M = M, sigma2_start = sigma2_start,
+                 beta_start = beta_start, m = m, M = M,
                  burnin = burnin, dist = dist, formula = formula)
   # define a second class "metrohas" for the output, in order to use the summary()
   class(result) <- append("metrohas", "list")

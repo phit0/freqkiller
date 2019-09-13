@@ -1,7 +1,7 @@
 #############################################
 ###         MCMC for normal data          ###
 #############################################
-metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it, thinning_lag, dist){
+metroNorm <- function(formula, beta_start, a0, b0, m, M, number_it, thinning_lag, dist){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
@@ -16,13 +16,18 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
 
   # vector for sigmas
   s_chain <- matrix(NA, nrow = number_it + 1, ncol = 1)
-  s_chain[1] <- sigma2_start
-  sigma2_t <- sigma2_start
 
+  # starting values for IG of sigma2 full conditionals
   a_t <- a0
   b_t <- b0
 
   for (i in 1:number_it) {
+
+    # update sigma2
+    a_t <- a_func(y, a_t)
+    b_t <- b_func(chain[i, ], y, X, b_t)
+    sigma2_t <- sigma_gibbs(a_t, b_t)
+    s_chain[i] <- sigma2_t
 
     # IWLS
     F_t <- fisher_func(sigma2_t, beta_t, y, X, M_1, dist)
@@ -41,9 +46,11 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
     # Posterior
     prior_t <- prior_func(chain[i, ], m, M_1, M_det)
     prior_star <- prior_func(proposal, m, M_1, M_det)
+
     # likelihoods
     loglik_t <- loglik_func(chain[i, ], sigma2_t, y, X, dist)
     loglik_star <- loglik_func(proposal, sigma2_t, y, X, dist)
+
     # acceptance probability
     alpha <- min(c(prior_star + loglik_star + q_cond_star - prior_t - loglik_t - q_cond_t, 0))
     # add alphas to output
@@ -54,12 +61,6 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
     }else{
       chain[i + 1, ] <- chain[i, ]
     }
-
-    # update sigma
-    a_t <- a_func(y, a_t)
-    b_t <- b_func(chain[i + 1, ], y, X, b_t)
-    sigma2_t <- sigma_gibbs(a_t, b_t)
-    s_chain[i+1] <- sigma2_t
 
     # Check for startvalue issue at iteration 1000
     if (i == 1000 & length(unique(chain[1:1000, ])) == 2) {
