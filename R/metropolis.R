@@ -17,6 +17,28 @@
 #' @importFrom mvtnorm dmvnorm
 #'
 #' @examples
+#' \dontrun{
+#' # default arguments
+#' data("PlantGrowth")
+#' attach(PlantGrowth)
+#' mh1 <- frequentistkiller(weight ~ group,
+#'                         dist = "normal", number_it = 2000)
+#' summary(mh1)
+#' matplot(mh1$chain, type = "l", col = seq(1,4), ylim = c(-1, 6))
+#' legend("center", legend = colnames(mh1$chain), col = seq(1,4),lty = 1)
+#'
+#' # poisson distributed data with default parameters
+#'
+#' set.seed(42)
+#' n <- 100
+#' x <- rnorm(n)
+#' beta <- c(4, 1.2)
+#' lambda <- exp(beta[1] + x*beta[2])
+#' (y <-  rpois(n, lambda))
+#'
+#' mh2 <- frequentistkiller(y ~ x, dist = "poisson", number_it = 2000)
+#' summary(mh2)
+#' }
 frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
                      a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
                      M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 500){
