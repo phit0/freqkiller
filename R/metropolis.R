@@ -42,6 +42,7 @@
 frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
                      a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
                      M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 500){
+
   # check if default or manual startvalue
   if(is.character(beta_start)) {
     if (beta_start == "ml_estimate") {
