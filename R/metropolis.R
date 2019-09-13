@@ -12,12 +12,12 @@
 #' @param formula object of the type formula or a one that can be coerced into the class formula
 #' @return chain of n betas that will be ploted
 #'  as a histogram or line plot to show the sampling path
-#' @export
+#'
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom mvtnorm dmvnorm
 #'
 #' @examples
-metrohas <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimate",
+frequentistkiller <- function(formula, dist, sigma2_start = 1, beta_start = "ml_estimate",
                      a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
                      M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 500){
   # check if default or manual startvalue
