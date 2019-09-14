@@ -1,34 +1,75 @@
-#' Sample betas from a proposal density using MCMC
+#' Sample betas from IWLS proposal densities via MCMC
 #'
-#'The function executes the Metropolis Hashtings Algorithm, where a Normal proposal density
-#'based on prior information and the current beta is generated (and updated) by means of iteratively
-#'weighted least squares. A random sample from the proposal density is then evaluated according to
-#'the loglikelihood, log-prior distribution and conditional proposal density compared to the previous
-#'beta. If the new value performs good enough, it has a higher chance to be stored in the chain of
-#'betas. If rejected, the current beta is stored in the chain and the algorithm proceeds to the next iteration.
+#' @description The framework of the model are baeysian generalized linear models
+#' of the form
+#' \deqn{y = h(X\beta) + \epsilon with y ~ N(h(X\beta), \sigma^2I)}
+#' where \eqn{h} is the response function. Further, a prior of the form
+#' \eqn{\beta ~ N(m, M)} is specified. \cr \cr
+#' The function executes the Metropolis Hashtings Algorithm, where a Normal
+#' proposal density based on prior information and the current beta is generated
+#' (and updated) by means of iteratively weighted least squares. A random sample
+#' from the proposal density is then evaluated according to the loglikelihood,
+#' log-prior distribution and conditional proposal density compared to the
+#' previous beta. If the new value performs good enough, it has a higher chance
+#' to be stored in the chain of betas. If rejected, the current beta is stored
+#' in the chain and the algorithm proceeds to the next iteration.
 #'
-#' @param startvalue a beta vector
-#' @param anzahl_sim number n of betas to sample, determines the length of the chain
-#' @param formula object of the type formula or a one that can be coerced into the class formula
-#' @return chain of n betas that will be ploted
-#'  as a histogram or line plot to show the sampling path
+#' @param formula object of the type formula or a one that can be coerced into
+#' the class formula.
+#' @param dist character element either "bernoulli", "normal" or "poisson".
+#' @param beta_start vector of appropriate length to specify the starting values
+#' for the regression parameter \eqn{\beta} in the Metropolis-Hastings algorithm.
+#' @param number_it number n of iterations for the Metropolis-Hastings algorithm.
+#' @param m Numeric vector or single number of the same length as \eqn{beta}.
+#' @param M A numeric symetric noningular square Matrix with same size as the
+#' amount of regression parameters of interest.
+#' @param thinning_lag integer from \eqn{[1:100]}
+#' @param burnin integer that indicates how many samples will be cut off at the
+#' beginnign of the chain, the default is 500.
 #'
+#' @details \code{dist} specified by the user as "bernoulli", "normal" or
+#' "poisson" according to the assumptions about the response variable.
+#' By default, the \code{beta_start} are set to the maximum likelihood estimator
+#' for the regression model as estimated by \code{glm()}. \cr \cr
+#' Note that it might be necessary to increase the amount of iterations fixed
+#' by \code{number_it}, if a larger burn in phase is selected or \code{thinning_lag}
+#' is specified in order to reach a suficcient amount of samples from the posterior.
+#' The remaining amount of samples are calculated via \cr
+#' \code{n = (number_it - burnin) / (thinning_lag)}. \cr
+#' The prior distribution of \eqn{\beta} has expectation \code{m} with \code{beta_start} as default
+#' and covariance matrix \code{M}.
+#' The default is the identity Matrix.\cr
+#' \code{thinning_lag} specifies at what intervall the obtained chain will be thinned out.
+#' If \code{thinning_lag = 1} every element of the chain will be returned.
+#' If \code{thinning_lag = 10} obly every \code{10th} element will be returned, and so on.
+#'
+#'
+#'
+#' @return A list  of class \code{"\link[=metrohas.object]{metrohas}"} with
+#' the following elements:  \cr
+#' \itemize{
+#'  \item \code{chain}: A vector (if univariate without intercept) or dataframe
+#'  with the sampled values for each element of \eqn{\beta} in the respective
+#'  column.
+#'  \item  The values of all arguments of the function call as specified by the user}
 #' @importFrom mvtnorm rmvnorm
-#' @importFrom mvtnorm dmvnorm
-#'
+#' @export
 #' @examples
 #' \dontrun{
-#' # default arguments
+#' ## Normal distribution
+#' # all function arguments explicit
 #' data("PlantGrowth")
 #' attach(PlantGrowth)
-#' mh1 <- frequentistkiller(weight ~ group,
-#'                         dist = "normal", number_it = 2000)
+#'
+#' mh1 <- frequentistkiller(weight ~ group, dist = "normal", number_it = 10000,
+#'                         beta_start = c(3, 0, 0), m = c(1, 0, 0), a0 = 0.001, b0 = 0.001,
+#'                         M = 10*diag(c(1,1,1)), thinning_lag = 10, burnin = 500)
 #' summary(mh1)
-#' matplot(mh1$chain, type = "l", col = seq(1,4), ylim = c(-1, 6))
+#' matplot(mh1$chain, type = "l", col = seq(1,4), ylim = c(-1, 6),  main = "Traceplot")
 #' legend("center", legend = colnames(mh1$chain), col = seq(1,4),lty = 1)
 #'
-#' # poisson distributed data with default parameters
-#'
+#' ## poisson distributed data
+#' # default parameters
 #' set.seed(42)
 #' n <- 100
 #' x <- rnorm(n)
@@ -38,6 +79,8 @@
 #'
 #' mh2 <- frequentistkiller(y ~ x, dist = "poisson", number_it = 2000)
 #' summary(mh2)
+#'
+#' ## Bernoulli distributed data
 #' }
 frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
                      a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
@@ -46,7 +89,7 @@ frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
   # check if default or manual startvalue
   if(is.character(beta_start)) {
     if (beta_start == "ml_estimate") {
-    beta_start <- beta_init(formula,dist)
+    beta_start <- beta_init(formula, dist)
     }else {
     stop("beta_start can be either a numeric
                vector of appropriate length or default \"ml_estimator\"")
