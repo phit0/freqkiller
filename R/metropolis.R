@@ -1,15 +1,20 @@
 #' Sample betas from IWLS proposal densities via MCMC
 #'
-#' @description The framework of the model are baeysian generalized linear models
+#' @description The framework of the model are bayesian generalized linear models
 #' of the form
-#' \deqn{y = h(X\beta) + \epsilon with y ~ N(h(X\beta), \sigma^2I)}
+#' \deqn{E(y) = h(X\beta)}
 #' where \eqn{h} is the response function. Further, a prior of the form
 #' \eqn{\beta ~ N(m, M)} is specified. \cr \cr
+#' Available distributions and associated link functions are:
+#' \itemize{
+#'   \item "bernoulli" - logit link
+#'   \item "normal" - identity link
+#'   \item "poisson" - log link}
 #' The function executes the Metropolis Hashtings Algorithm, where a Normal
 #' proposal density based on prior information and the current beta is generated
 #' (and updated) by means of iteratively weighted least squares. A random sample
 #' from the proposal density is then evaluated according to the loglikelihood,
-#' log-prior distribution and conditional proposal density compared to the
+#' log-prior distribution and logarithmized conditional proposal density compared to the
 #' previous beta. If the new value performs good enough, it has a higher chance
 #' to be stored in the chain of betas. If rejected, the current beta is stored
 #' in the chain and the algorithm proceeds to the next iteration.

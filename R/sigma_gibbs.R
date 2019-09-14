@@ -1,3 +1,7 @@
+#' Title
+#'
+#' @noRd
+#'
 sigma_gibbs <- function(a_t, b_t) {
   out <- 1/rgamma(1, shape = a_t, rate = b_t)
   return(out)
