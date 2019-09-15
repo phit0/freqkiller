@@ -18,11 +18,16 @@ the class formula.}
 \item{beta_start}{vector of appropriate length to specify the starting values
 for the regression parameter \eqn{\beta} in the Metropolis-Hastings algorithm.}
 
+\item{a0}{scalar number, starting parameter "shape" for the iverse gamma (IG)
+distribution of the Gibbs sampler for the variance.}
+
+\item{b0}{scalar number, starting parameter "rate" for the IG distribution.}
+
 \item{number_it}{number n of iterations for the Metropolis-Hastings algorithm.}
 
-\item{m}{Numeric vector or single number of the same length as \eqn{beta}.}
+\item{m}{numeric vector or single number of the same length as \eqn{beta}.}
 
-\item{M}{A numeric symetric noningular square Matrix with same size as the
+\item{M}{a numeric symetric noningular square Matrix with same size as the
 amount of regression parameters of interest.}
 
 \item{thinning_lag}{integer from \eqn{[1:100]}}
@@ -64,6 +69,9 @@ in the chain and the algorithm proceeds to the next iteration.
 "poisson" according to the assumptions about the response variable.
 By default, the \code{beta_start} are set to the maximum likelihood estimator
 for the regression model as estimated by \code{glm()}. \cr \cr
+The starting values \code{a0, b0} are only needed if \code{dist = "normal"},
+as the variance cannot be expressed by means of the expected value, as it is
+with the other two distributions, that have only one dependent parameter.
 Note that it might be necessary to increase the amount of iterations fixed
 by \code{number_it}, if a larger burn in phase is selected or \code{thinning_lag}
 is specified in order to reach a suficcient amount of samples from the posterior.

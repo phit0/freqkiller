@@ -7,14 +7,8 @@ sigma_gibbs <- function(a_t, b_t) {
   return(out)
 }
 
-a_func <- function(y, a_t) {
-  n <- length(y)
-  a_new <- (n / 2) + a_t
-  return(a_new)
-}
-
-b_func <- function(beta_t, y, X, b_t) {
+b_func <- function(beta_t, y, X, b0) {
   eta <- X%*%beta_t
-  b_new <- b_t + 0.5 * t(y - eta) %*% (y - eta)
+  b_new <- b0 + 0.5 * t(y - eta) %*% (y - eta)
   return(b_new)
 }

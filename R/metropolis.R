@@ -24,9 +24,12 @@
 #' @param dist character element either "bernoulli", "normal" or "poisson".
 #' @param beta_start vector of appropriate length to specify the starting values
 #' for the regression parameter \eqn{\beta} in the Metropolis-Hastings algorithm.
+#' @param a0 scalar number, starting parameter "shape" for the iverse gamma (IG)
+#' distribution of the Gibbs sampler for the variance.
+#' @param b0 scalar number, starting parameter "rate" for the IG distribution.
 #' @param number_it number n of iterations for the Metropolis-Hastings algorithm.
-#' @param m Numeric vector or single number of the same length as \eqn{beta}.
-#' @param M A numeric symetric noningular square Matrix with same size as the
+#' @param m numeric vector or single number of the same length as \eqn{beta}.
+#' @param M a numeric symetric noningular square Matrix with same size as the
 #' amount of regression parameters of interest.
 #' @param thinning_lag integer from \eqn{[1:100]}
 #' @param burnin integer that indicates how many samples will be cut off at the
@@ -34,8 +37,14 @@
 #'
 #' @details \code{dist} specified by the user as "bernoulli", "normal" or
 #' "poisson" according to the assumptions about the response variable.
+#' If \code{dist = "normal"}, a hybrid algorithm is executed, where samples for
+#' \code{\sigma^2} are obtained with a Gibbs sampler updating the full
+#' conditionals of a conjugate inverse gamma prior.
 #' By default, the \code{beta_start} are set to the maximum likelihood estimator
 #' for the regression model as estimated by \code{glm()}. \cr \cr
+#' The starting values \code{a0, b0} are only needed if \code{dist = "normal"},
+#' as the variance cannot be expressed by means of the expected value, as it is
+#' with the other two distributions, that have only one dependent parameter.
 #' Note that it might be necessary to increase the amount of iterations fixed
 #' by \code{number_it}, if a larger burn in phase is selected or \code{thinning_lag}
 #' is specified in order to reach a suficcient amount of samples from the posterior.
@@ -110,7 +119,7 @@ frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
     chain <- metroPois(formula, beta_start, m, M, num_it, dist)
   }
   else if  (dist == "normal") {
-    chain <- metroNorm(formula, beta_start, a0, b0, m, M, num_it, thinning_lag, dist)
+    chain <- metroNorm(formula, beta_start, a0, b0, m, M, num_it, dist)
   }
   else if (dist == "bernoulli"){
     chain <- metroBer(formula, beta_start, m, M, num_it, dist)

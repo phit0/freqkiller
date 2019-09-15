@@ -1,7 +1,7 @@
 #############################################
 ###         MCMC for normal data          ###
 #############################################
-metroNorm <- function(formula, beta_start, a0, b0, m, M, number_it, thinning_lag, dist){
+metroNorm <- function(formula, beta_start, a0, b0, m, M, number_it, dist){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
@@ -18,10 +18,10 @@ metroNorm <- function(formula, beta_start, a0, b0, m, M, number_it, thinning_lag
   s_chain <- matrix(NA, nrow = number_it + 1, ncol = 1)
 
   # initialize sigma2 chain
-  a_t <- a_func(y, a0)
-  b_t <- b_func(chain[1, ], y, X, b0)
-  sigma2_t <- sigma_gibbs(a_t, b_t)
-  s_chain[1] <- sigma2_t
+  a_t <- length(y)/2 + a0 # a is fixed
+  b_t <- b_func(chain[1, ], y, X, b0) # update first b
+  sigma2_t <- sigma_gibbs(a_t, b_t) # sample first sigma
+  s_chain[1] <- sigma2_t # add to chain
 
   for (i in 1:number_it) {
 
@@ -59,8 +59,7 @@ metroNorm <- function(formula, beta_start, a0, b0, m, M, number_it, thinning_lag
     }
 
     # update sigma2
-    a_t <- a_func(y, a_t)
-    b_t <- b_func(chain[i, ], y, X, b_t)
+    b_t <- b_func(chain[i, ], y, X, b0)
     sigma2_t <- sigma_gibbs(a_t, b_t)
     s_chain[i + 1] <- sigma2_t
 
