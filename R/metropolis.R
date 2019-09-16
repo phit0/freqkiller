@@ -38,7 +38,7 @@
 #' @details \code{dist} specified by the user as "bernoulli", "normal" or
 #' "poisson" according to the assumptions about the response variable.
 #' If \code{dist = "normal"}, a hybrid algorithm is executed, where samples for
-#' \code{\sigma^2} are obtained with a Gibbs sampler updating the full
+#' \eqn{\sigma^2} are obtained with a Gibbs sampler updating the full
 #' conditionals of a conjugate inverse gamma prior.
 #' By default, the \code{beta_start} are set to the maximum likelihood estimator
 #' for the regression model as estimated by \code{glm()}. \cr \cr
@@ -77,7 +77,7 @@
 #'
 #' mh1 <- frequentistkiller(weight ~ group, dist = "normal", number_it = 10000,
 #'                         beta_start = c(3, 0, 0), m = c(1, 0, 0), a0 = 0.001, b0 = 0.001,
-#'                         M = 10*diag(c(1,1,1)), thinning_lag = 10, burnin = 500)
+#'                         M = 10*diag(c(1,1,1)), thinning_lag = 10, burnin = 100)
 #' summary(mh1)
 #' matplot(mh1$chain, type = "l", col = seq(1,4), ylim = c(-1, 6),  main = "Traceplot")
 #' legend("center", legend = colnames(mh1$chain), col = seq(1,4),lty = 1)
@@ -98,7 +98,7 @@
 #' }
 frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
                      a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
-                     M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 500){
+                     M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 100){
 
   # check if default or manual startvalue
   if(is.character(beta_start)) {
@@ -110,26 +110,23 @@ frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
       }
   }
 
-  # increase number of iterations if thinning will be performed
-  num_it <- (number_it + burnin) * thinning_lag
-
   if (dist == "poisson") {
 
     # run algorithm
-    chain <- metroPois(formula, beta_start, m, M, num_it, dist)
+    chain <- metroPois(formula, beta_start, m, M, number_it, dist)
   }
   else if  (dist == "normal") {
-    chain <- metroNorm(formula, beta_start, a0, b0, m, M, num_it, dist)
+    chain <- metroNorm(formula, beta_start, a0, b0, m, M, number_it, dist)
   }
   else if (dist == "bernoulli"){
-    chain <- metroBer(formula, beta_start, m, M, num_it, dist)
+    chain <- metroBer(formula, beta_start, m, M, number_it, dist)
   }
   else {
     stop("Wrong distribution name. Choose one of the implemented distributions:
          \"normal\", \"poisson\" or \"bernoulli\".")
   }
   # cut off burn in phase
-  chain <- chain[burnin:num_it, ]
+  chain <- chain[burnin:number_it, ]
   # thinning if desired
   if (thinning_lag > 1) {
     chain <- chain[seq(1, nrow(chain), thinning_lag), ]
@@ -137,10 +134,11 @@ frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
 
   # gather objects for the output in a list
   result <- list(chain = chain, thinning_lag = thinning_lag, number_it = number_it,
-                 beta_start = beta_start, m = m, M = M,
+                 beta_start = beta_start, a0 = a0, b0 = b0, m = m, M = M,
                  burnin = burnin, dist = dist, formula = formula)
-  # define a second class "metrohas" for the output, in order to use the summary()
-  class(result) <- append("metrohas", "list")
+
+  # define a second class "frequentistkiller" for the output, in order to use the summary()
+  class(result) <- append("frequentistkiller", "list")
 
   print("DONE")
   return(result)

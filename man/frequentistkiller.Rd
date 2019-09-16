@@ -7,7 +7,7 @@
 frequentistkiller(formula, dist, beta_start = "ml_estimate",
   a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
   M = diag(ncol(model.matrix(formula))), thinning_lag = 1,
-  burnin = 500)
+  burnin = 100)
 }
 \arguments{
 \item{formula}{object of the type formula or a one that can be coerced into
@@ -67,6 +67,9 @@ in the chain and the algorithm proceeds to the next iteration.
 \details{
 \code{dist} specified by the user as "bernoulli", "normal" or
 "poisson" according to the assumptions about the response variable.
+If \code{dist = "normal"}, a hybrid algorithm is executed, where samples for
+\code{\sigma^2} are obtained with a Gibbs sampler updating the full
+conditionals of a conjugate inverse gamma prior.
 By default, the \code{beta_start} are set to the maximum likelihood estimator
 for the regression model as estimated by \code{glm()}. \cr \cr
 The starting values \code{a0, b0} are only needed if \code{dist = "normal"},
@@ -93,7 +96,7 @@ attach(PlantGrowth)
 
 mh1 <- frequentistkiller(weight ~ group, dist = "normal", number_it = 10000,
                         beta_start = c(3, 0, 0), m = c(1, 0, 0), a0 = 0.001, b0 = 0.001,
-                        M = 10*diag(c(1,1,1)), thinning_lag = 10, burnin = 500)
+                        M = 10*diag(c(1,1,1)), thinning_lag = 10, burnin = 100)
 summary(mh1)
 matplot(mh1$chain, type = "l", col = seq(1,4), ylim = c(-1, 6),  main = "Traceplot")
 legend("center", legend = colnames(mh1$chain), col = seq(1,4),lty = 1)

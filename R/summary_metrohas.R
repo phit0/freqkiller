@@ -1,6 +1,21 @@
-summary.metrohas <- function(result) {
+summary.frequentistkiller <- function(result) {
   chain <- result$chain
   res <- list()
+
+  ## call
+  res$call <- paste("Call: \n  frequentistkiller(formula = ", deparse(result$formula),
+                    ",", "number_it =", result$number_it, ",", "dist =", result$dist,")\n\n")
+
+   ## start values
+  res$beta_start <- paste("Starting values for beta: ",
+                          deparse(round(result$beta_start, digits = 4)),"\n\n")
+
+  ## startvalues of the gibbs sampler (normal only)
+  if (result$dist == "normal") {
+    res$gibbs <- paste("Prior parameters for variance: ", result$a0, result$b0, "\n\n")
+  }
+  ## Summary statistics for the chain
+  res$t1 <- "Summary statistics for the sample:\n"
   if (is.null(ncol(chain))) { # if univariate
     res$coefficients <- matrix(c(mean(chain), median(chain), sd(chain),
                          quantile(chain, probs = 0.025), quantile(chain, probs = 0.975)),
@@ -21,49 +36,35 @@ summary.metrohas <- function(result) {
     }
   }
 
-  ###########################################################
-  ####                 output             ###################
-  ###########################################################
-
-  ## call
-  cat("\nCall: \nmetrohas(formula = ", deparse(result$formula),
-      ",", "number_it =", result$number_it, ",", "dist =", result$dist, ")\n")
-
-  ## start values
-  cat("\nStartvalues for beta: ", round(result$beta_start, digits = 4),
-              collapse = " ", "\n")
-  ## startvalue for sigma of the gibbs sampler (normal only)
-  if (result$dist == "normal") {
-    cat("\nStartvalue for variance: ", result$sigma2_start, "\n")
-  }
-
-  ## print the coefficients
-  cat("\nCoefficients:\n")
-  print(res$coefficients, digits = 4, print.gap = 2)
-
   ## print prior parameters
-  cat("\n", rep("~", 30), "\n")
-  cat("Prior asumptions for estimated parameters: \nCovariance \'M\': \n")
-  print(result$M)
-  cat("\nExpected value \'m\': \n")
-  print(result$m)
-  cat(rep("~", 30), "\n")
+  res$br1 <- rep("~", 30)
+  res$t2 <- "\nPrior asumptions for estimated parameters:\n"
+  res$t3 <- "covariance matrix \"M\":\n"
+  res$M <- result$M
+  res$t4 <- "expected value \"m\":\n"
+   res$m <- result$m
+  res$br2 <-  rep("~", 30)
 
-  ## Number of iterations
-  cat("\nNumber of Metropolis-Hastings iterations: ",
-      (result$number_it + result$burnin) * result$thinning_lag, "\n")
-  ## Burnin
-  cat("Burn in iterations: ", result$burnin, "\n")
+ ## Burnin
+  res$burnin <- paste("\n\nBurn in iterations: ", result$burnin, "\n")
   ## thinning
   if (result$thinning == 1) {
-    cat("No thinning was  performed (!)\n")
+    res$thin <- "No thinning was  performed (!)\n"
   }else{
-    cat("Thinning: Every k =", result$thinning_lag, " sample was retained\n")
+    res$thin <- paste("Thinning: Every k =", result$thinning_lag, " sample was retained\n")
   }
-  cat(rep("-", 30), "\n")
+  res$br3 <- rep("-", 30)
   ## Number of samples drawn
-  cat("Number of remaining samples: ", result$number_it, "\n")
+  res$samples <- paste("\nNumber of remaining samples: ", nrow(result$chain))
 
+  #printing
+  lapply(res[1:4], cat)
+  print(res$coefficients, quote = FALSE)
+  lapply(res[6:8], cat)
+  print(res$M, quote = FALSE)
+  cat(res$t4)
+  print(res$m, quote = FALSE)
+  lapply(res[12:16], cat)
   invisible(res)
 }
 
