@@ -67,6 +67,7 @@
 #'  column.
 #'  \item  The values of all arguments of the function call as specified by the user}
 #' @importFrom mvtnorm rmvnorm
+#' @importFrom MASS mvrnorm
 #' @export
 #' @examples
 #' \dontrun{
@@ -97,8 +98,8 @@
 #' ## Bernoulli distributed data
 #' }
 frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
-                     a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
-                     M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 100){
+                     a0 = 0.001, b0 = 0.001, number_it, m = rep(0, length(beta_start)),
+                     M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 100, notify =TRUE){
 
   # check if default or manual startvalue
   if(is.character(beta_start)) {
@@ -106,20 +107,20 @@ frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
     beta_start <- beta_init(formula, dist)
     }else {
     stop("beta_start can be either a numeric
-               vector of appropriate length or default \"ml_estimator\"")
+               vector of appropriate length or default \"ml_estimate\"")
       }
   }
 
   if (dist == "poisson") {
 
     # run algorithm
-    chain <- metroPois(formula, beta_start, m, M, number_it, dist)
+    chain <- metroPois(formula, beta_start, m, M, number_it, dist, notify)
   }
   else if  (dist == "normal") {
     chain <- metroNorm(formula, beta_start, a0, b0, m, M, number_it, dist)
   }
   else if (dist == "bernoulli"){
-    chain <- metroBer(formula, beta_start, m, M, number_it, dist)
+    chain <- metroBer(formula, beta_start, m, M, number_it, dist, notify)
   }
   else {
     stop("Wrong distribution name. Choose one of the implemented distributions:
@@ -139,8 +140,10 @@ frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
 
   # define a second class "frequentistkiller" for the output, in order to use the summary()
   class(result) <- append("frequentistkiller", "list")
+  if (notify) {
+    print("DONE")
+  }
 
-  print("DONE")
   return(result)
 }
 

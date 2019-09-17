@@ -3,19 +3,19 @@ summary.frequentistkiller <- function(result) {
   res <- list()
 
   ## call
-  res$call <- paste("Call: \n  frequentistkiller(formula = ", deparse(result$formula),
-                    ",", "number_it =", result$number_it, ",", "dist =", result$dist,")\n\n")
+  res$call <- paste("Call:   frequentistkiller(formula = ", deparse(result$formula),
+                    ",", "number_it =", result$number_it, ",", "dist =", result$dist,")")
 
    ## start values
   res$beta_start <- paste("Starting values for beta: ",
-                          deparse(round(result$beta_start, digits = 4)),"\n\n")
+                          deparse(round(result$beta_start, digits = 4)),"")
 
   ## startvalues of the gibbs sampler (normal only)
   if (result$dist == "normal") {
-    res$gibbs <- paste("Prior parameters for variance: ", result$a0, result$b0, "\n\n")
+    res$gibbs <- paste("Prior parameters for variance: ", result$a0, result$b0, "")
   }
   ## Summary statistics for the chain
-  res$t1 <- "Summary statistics for the sample:\n"
+  res$t1 <- "Summary statistics for the sample:"
   if (is.null(ncol(chain))) { # if univariate
     res$coefficients <- matrix(c(mean(chain), median(chain), sd(chain),
                          quantile(chain, probs = 0.025), quantile(chain, probs = 0.975)),
@@ -38,33 +38,26 @@ summary.frequentistkiller <- function(result) {
 
   ## print prior parameters
   res$br1 <- rep("~", 30)
-  res$t2 <- "\nPrior asumptions for estimated parameters:\n"
-  res$t3 <- "covariance matrix \"M\":\n"
+  res$t2 <- "Prior asumptions for estimated parameters:"
+  res$t3 <- "covariance matrix \"M\":"
   res$M <- result$M
-  res$t4 <- "expected value \"m\":\n"
+  res$t4 <- "expected value \"m\":"
    res$m <- result$m
   res$br2 <-  rep("~", 30)
 
  ## Burnin
-  res$burnin <- paste("\n\nBurn in iterations: ", result$burnin, "\n")
+  res$burnin <- paste("Burn in iterations: ", result$burnin, "")
   ## thinning
   if (result$thinning == 1) {
-    res$thin <- "No thinning was  performed (!)\n"
+    res$thin <- "No thinning was  performed (!)"
   }else{
-    res$thin <- paste("Thinning: Every k =", result$thinning_lag, " sample was retained\n")
+    res$thin <- paste("Thinning: Every k =", result$thinning_lag, " sample was retained")
   }
   res$br3 <- rep("-", 30)
   ## Number of samples drawn
-  res$samples <- paste("\nNumber of remaining samples: ", nrow(result$chain))
+  res$samples <- paste("Number of remaining samples: ", nrow(result$chain))
 
-  #printing
-  lapply(res[1:4], cat)
-  print(res$coefficients, quote = FALSE)
-  lapply(res[6:8], cat)
-  print(res$M, quote = FALSE)
-  cat(res$t4)
-  print(res$m, quote = FALSE)
-  lapply(res[12:16], cat)
+  lapply(res, FUN = print, quote = FALSE)
   invisible(res)
 }
 
