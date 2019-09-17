@@ -59,7 +59,7 @@ prior_func <- function(beta_t, m, M_1, M_det) {
 }
 
 proposalfunction <- function(mu, sigma2) {
-  out <- rmvnorm(1, mu, sigma2)
+  out <- mvrnorm(1, mu, sigma2)
   return(as.vector(out))
 }
 

@@ -66,7 +66,7 @@
 #'  with the sampled values for each element of \eqn{\beta} in the respective
 #'  column.
 #'  \item  The values of all arguments of the function call as specified by the user}
-#' @importFrom mvtnorm rmvnorm
+#' @importFrom MASS mvrnorm
 #' @export
 #' @examples
 #' \dontrun{
