@@ -5,9 +5,9 @@
 \title{Sample betas from IWLS proposal densities via MCMC}
 \usage{
 frequentistkiller(formula, dist, beta_start = "ml_estimate",
-  a0 = 0.001, b0 = 0.001, number_it, m = beta_start,
+  a0 = 0.001, b0 = 0.001, number_it, m = rep(0, length(beta_start)),
   M = diag(ncol(model.matrix(formula))), thinning_lag = 1,
-  burnin = 100)
+  burnin = 100, notify = TRUE)
 }
 \arguments{
 \item{formula}{object of the type formula or a one that can be coerced into
@@ -68,7 +68,7 @@ in the chain and the algorithm proceeds to the next iteration.
 \code{dist} specified by the user as "bernoulli", "normal" or
 "poisson" according to the assumptions about the response variable.
 If \code{dist = "normal"}, a hybrid algorithm is executed, where samples for
-\code{\sigma^2} are obtained with a Gibbs sampler updating the full
+\eqn{\sigma^2} are obtained with a Gibbs sampler updating the full
 conditionals of a conjugate inverse gamma prior.
 By default, the \code{beta_start} are set to the maximum likelihood estimator
 for the regression model as estimated by \code{glm()}. \cr \cr
