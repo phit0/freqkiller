@@ -1,3 +1,11 @@
+#' Title
+#'
+#' @param result Object of class frequentistkiller
+#'
+#' @return list with all the elements of the summary output to the console
+#' @export
+#'
+#' @examples
 summary.frequentistkiller <- function(result) {
   chain <- result$chain
   res <- list()
