@@ -105,7 +105,7 @@ frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
   if(is.character(beta_start)) {
     if (beta_start == "ml_estimate") {
     beta_start <- beta_init(formula, dist)
-    }else {
+    } else {
     stop("beta_start can be either a numeric
                vector of appropriate length or default \"ml_estimate\"")
       }

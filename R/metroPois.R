@@ -17,7 +17,7 @@ metroPois <- function(formula, beta_start, m, M, number_it, dist, notify){
 
     beta_t <- chain[i,]
 
-    lambda_t <- exp(X%*%beta_t)
+    lambda_t <- exp(X %*% beta_t)
 
     # IWLS
     F_t <- fisher_func(lambda_t, beta_t, y, X, M_1, dist)

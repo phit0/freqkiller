@@ -18,7 +18,7 @@ metroNorm <- function(formula, beta_start, a0, b0, m, M, number_it, dist){
   s_chain <- matrix(NA, nrow = number_it + 1, ncol = 1)
 
   # initialize sigma2 chain
-  a_t <- length(y)/2 + a0 # a is fixed
+  a_t <- length(y) / 2 + a0 # a is fixed
   b_t <- b_func(chain[1, ], y, X, b0) # update first b
   sigma2_t <- sigma_gibbs(a_t, b_t) # sample first sigma
   s_chain[1] <- sigma2_t # add to chain
