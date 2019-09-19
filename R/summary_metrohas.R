@@ -11,8 +11,8 @@ summary.frequentistkiller <- function(result) {
   res <- list()
 
   ## call
-  res$call <- paste("Call:   frequentistkiller(formula = ", deparse(result$formula),
-                    ",", "number_it =", result$number_it, ",", "dist =", result$dist,")")
+  res$call <- paste("Call: frequentistkiller(", deparse(result$formula), ",",
+                    "number_it =", result$number_it,",", "dist =", result$dist,")")
 
    ## start values
   res$beta_start <- paste("Starting values for beta: ",
