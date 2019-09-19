@@ -1,18 +1,30 @@
-Package: BASS
-Title: What the Package Does (One Line, Title Case)
+Package: frequentistkiller
+Title: Metropolis-Hastings algorithm using IWLS for selected generalized linear models
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Rafael",
+           family = "Arce",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
+           email = "r.arceguillen@stud.uni-goettingen.de",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+    person(given = "Philipp",
+           family = "Schad",
+           role = c("aut", "cre"),
+           email = "philipp.schad@stud.uni-goettingen.de",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Frequentistkiller is a package that allows to fit a multivariate 
+  generalized linear model for Bernoulli (link = logit), Normal and Poisson 
+  (link = log) distributed response variables, including prior asumptions about 
+  the regression parameter. Parameters are sampled from a normal proposal density 
+  constructed via IWLS during the iterations of a Metropolis-Hastings algorithm and
+  returned as a chain of close-to independent parameters. Their distribution  
+  converges to the true posterior distribution of the parameters for infinite 
+  iterations.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-url: https://github.com/phit0/BASS
-bugreports: https://github.com/phit0/BASS/issues
+url: https://github.com/phit0/frequentistkiller
+bugreports: https://github.com/phit0/frequentistkiller/issues
 Suggests: 
     testthat (>= 2.1.0)
 RoxygenNote: 6.1.1

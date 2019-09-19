@@ -1,7 +1,7 @@
 #############################################
 ###         MCMC for poisson data         ###
 #############################################
-metroPois <- function(formula, beta_start, m, M, number_it, dist){
+metroPois <- function(formula, beta_start, m, M, number_it, dist, notify){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
@@ -17,7 +17,7 @@ metroPois <- function(formula, beta_start, m, M, number_it, dist){
 
     beta_t <- chain[i,]
 
-    lambda_t <- exp(X%*%beta_t)
+    lambda_t <- exp(X %*% beta_t)
 
     # IWLS
     F_t <- fisher_func(lambda_t, beta_t, y, X, M_1, dist)
@@ -49,8 +49,15 @@ metroPois <- function(formula, beta_start, m, M, number_it, dist){
     }else{
       chain[i+1,] <- chain[i,]
     }
-    # add covariable names
-    colnames(chain) <- colnames(X)
+
+    # Check for startvalue issue at iteration 1000
+    if (i == 1000 & all(chain[1:1000,1] == chain[1,1])) {
+      warning("Proposals are not being accepted in the chain...
+              Try different starting values or use the default \"ml_estimate\".")
+    }
   }
+
+  # add covariable names
+  colnames(chain) <- colnames(X)
   return(chain)
 }

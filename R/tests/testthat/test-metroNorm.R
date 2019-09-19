@@ -4,8 +4,9 @@ test_that("Algorithm runs", {
   y <- beta[1] + beta[2] * x + rnorm(10)
   test_chain <- metrohas(y ~ x, "normal",
                          beta_start = c(0, 0),
-                         number_it = 1000)
-  plot(test_chain$chain[, 1], type ="l")
+                         anzahl_sim = 1000)
+  medi1 <- median(test_chain[, 1])
+  plot(test_chain[, 1], type ="l")
 })
 
 

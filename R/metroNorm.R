@@ -1,7 +1,7 @@
 #############################################
 ###         MCMC for normal data          ###
 #############################################
-metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it, thinning_lag, dist){
+metroNorm <- function(formula, beta_start, a0, b0, m, M, number_it, dist){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
@@ -16,11 +16,12 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
 
   # vector for sigmas
   s_chain <- matrix(NA, nrow = number_it + 1, ncol = 1)
-  s_chain[1] <- sigma2_start
-  sigma2_t <- sigma2_start
 
-  a_t <- a0
-  b_t <- b0
+  # initialize sigma2 chain
+  a_t <- length(y) / 2 + a0 # a is fixed
+  b_t <- b_func(chain[1, ], y, X, b0) # update first b
+  sigma2_t <- sigma_gibbs(a_t, b_t) # sample first sigma
+  s_chain[1] <- sigma2_t # add to chain
 
   for (i in 1:number_it) {
 
@@ -39,30 +40,35 @@ metroNorm <- function(formula, beta_start, sigma2_start, a0, b0, m, M, number_it
     q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)  #invert in function to avoid re-inverting
 
     # Posterior
-    prior_t <- prior_func(chain[i,], m, M_1, M_det)
+    prior_t <- prior_func(chain[i, ], m, M_1, M_det)
     prior_star <- prior_func(proposal, m, M_1, M_det)
+
     # likelihoods
-    loglik_t <- loglik_func(chain[i,], sigma2_t, y, X, dist)
+    loglik_t <- loglik_func(chain[i, ], sigma2_t, y, X, dist)
     loglik_star <- loglik_func(proposal, sigma2_t, y, X, dist)
+
     # acceptance probability
     alpha <- min(c(prior_star + loglik_star + q_cond_star - prior_t - loglik_t - q_cond_t, 0))
     # add alphas to output
     # alphas[i] <- alpha
 
     if (log(runif(1)) < alpha) {
-      chain[i+1,] <- proposal
+      chain[i + 1, ] <- proposal
     }else{
-      chain[i+1,] <- chain[i,]
+      chain[i + 1, ] <- chain[i, ]
     }
 
-    # update sigma
-    a_t <- a_func(y, a_t)
-    b_t <- b_func(chain[i + 1, ], y, X, b_t)
+    # update sigma2
+    b_t <- b_func(chain[i, ], y, X, b0)
     sigma2_t <- sigma_gibbs(a_t, b_t)
-    s_chain[i+1] <- sigma2_t
-  }
+    s_chain[i + 1] <- sigma2_t
 
-  # acf(s_chain, main = expression(paste("Autocorrelation of ", sigma^2)))
+    # Check for startvalue issue at iteration 1000
+    if (i == 1000 & all(chain[1:1000,1] == chain[1,1])) {
+      warning("Proposals are not being accepted in the chain...
+                Try different starting values or use the default \"ml_estimate\".")
+    }
+  }
 
   # add covariable names
   colnames(chain) <- colnames(X)

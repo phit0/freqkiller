@@ -1,7 +1,7 @@
 #############################################
 ###         MCMC for bernoulli data       ###
 #############################################
-metroBer <- function(formula, beta_start, m, M, number_it, dist){
+metroBer <- function(formula, beta_start, m, M, number_it, dist, notify){
 
   X <- model.matrix(formula)
   y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
@@ -16,7 +16,7 @@ metroBer <- function(formula, beta_start, m, M, number_it, dist){
   for (i in 1:number_it) {
 
     beta_t <- chain[i,]
-    sigma2_t <- dh(X%*%beta_t) #this holds due to var(y) = h(eta)*(1-h(eta)) = dh(eta)
+    sigma2_t <- dh(X %*% beta_t) #this holds due to var(y) = h(eta)*(1-h(eta)) = dh(eta)
 
     # IWLS
     F_t <- fisher_func(sigma2_t, beta_t, y, X, M_1, dist)
@@ -48,6 +48,11 @@ metroBer <- function(formula, beta_start, m, M, number_it, dist){
       chain[i+1,] <- chain[i,]
     }
 
+    # Check for startvalue issue at iteration 1000
+    if (i == 1000 & all(chain[1:1000,1] == chain[1,1])) {
+      warning("Proposals are not being accepted in the chain...
+              Try different starting values or use the default \"ml_estimate\".")
+    }
   }
   # add covariable names
   colnames(chain) <- colnames(X)
