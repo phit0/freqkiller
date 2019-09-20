@@ -21,6 +21,8 @@
 #'
 #' @param formula object of the type formula or a one that can be coerced into
 #' the class formula.
+#' @param data \code{\link{data.frame}} or matrix with column names that correspont to the values
+#' specified in the formula.
 #' @param dist character element either "bernoulli", "normal" or "poisson".
 #' @param beta_start vector of appropriate length to specify the starting values
 #' for the regression parameter \eqn{\beta} in the Metropolis-Hastings algorithm.
@@ -31,9 +33,11 @@
 #' @param m numeric vector or single number of the same length as \eqn{beta}.
 #' @param M a numeric symetric noningular square Matrix with same size as the
 #' amount of regression parameters of interest.
-#' @param thinning_lag integer from \eqn{[1:100]}
+#' @param thinning_lag integer from \eqn{>0}
 #' @param burnin integer that indicates how many samples will be cut off at the
 #' beginnign of the chain, the default is 500.
+#' @param notify If \code{notify = FALSE}, the user will not receive any notifications when
+#' the algoritm runs.
 #'
 #' @details \code{dist} specified by the user as "bernoulli", "normal" or
 #' "poisson" according to the assumptions about the response variable.
@@ -59,7 +63,7 @@
 #'
 #'
 #'
-#' @return A list  of class \code{"\link[=metrohas.object]{metrohas}"} with
+#' @return A list  of class \code{"\link[=frequentistkiller.object]{frequentistkiller}"} with
 #' the following elements:  \cr
 #' \itemize{
 #'  \item \code{chain}: A vector (if univariate without intercept) or dataframe

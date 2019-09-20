@@ -1,6 +1,8 @@
 #' Title
 #'
-#' @param result
+#' @param object list of S3 class "frequentistkiller"
+#' @param ... other arguments passed to the summary function, not aplicable for
+#' this method
 #'
 #' @return
 #' @export
