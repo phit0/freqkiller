@@ -14,16 +14,16 @@ w_func <- function(sigma2_t, beta_t, y, X, dist) {
   n = length(y)
   out <- switch(dist,
                 "normal" = diag(n) / sigma2_t,
-                "poisson" = diag(c(exp(X %*% beta_t))),
-                "bernoulli" = diag(c(dh(X %*% beta_t))))
+                "poisson" = as.vector(exp(X %*% beta_t)),
+                "bernoulli" = as.vector(dh(X %*% beta_t)))
   return(out)
 }
 
 fisher_func <- function(sigma2_t, beta_t, y, X, M_1, dist) {
   out <- switch(dist,
                 "normal" = (1/sigma2_t) * crossprod(X) + M_1,
-                "poisson" = t(X) %*% w_func(sigma2_t,beta_t,y,X,dist) %*% X + M_1,
-                "bernoulli" = t(X) %*% w_func(sigma2_t, beta_t, y, X, dist) %*% X + M_1)
+                "poisson" = t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*% X + M_1,
+                "bernoulli" = t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*% X + M_1)
   return(out)
 }
 
@@ -42,12 +42,10 @@ mu_func <- function(sigma2_t, beta_t, y, X, M_1, m, dist) {
 
 
                 "poisson" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
-                  (t(X) %*% (w_func(sigma2_t, beta_t, y, X, dist)
-                     %*% y_wgl_func(beta_t, y, X, dist)) + M_1 %*% m),
+                  (t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*%  y_wgl_func(beta_t, y, X, dist) + M_1 %*% m),
 
                 "bernoulli" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
-                  (t(X) %*% (w_func(sigma2_t, beta_t, y, X, dist) %*%
-                     y_wgl_func(beta_t, y, X, dist)) + M_1 %*% m))
+                  (t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*%  y_wgl_func(beta_t, y, X, dist) + M_1 %*% m))
   return(out)
 }
 
