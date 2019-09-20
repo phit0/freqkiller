@@ -30,7 +30,7 @@ metroNorm <- function(formula, beta_start, a0, b0, m, M, number_it, dist){
     mu_t <- mu_func(sigma2_t, beta_t, y, X, M_1, m, dist)
 
     # Pick proposal
-    proposal <- proposalfunction(mu_t, solve(F_t))
+    proposal <- proposalfunction(mu_t, chol2inv(chol(F_t)))
 
     # IWLS
     F_star <- fisher_func(sigma2_t, proposal, y, X, M_1, dist)

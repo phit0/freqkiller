@@ -11,8 +11,9 @@ dh <- function(x){
 }
 
 w_func <- function(sigma2_t, beta_t, y, X, dist) {
+  n = length(y)
   out <- switch(dist,
-                "normal" = diag(length(y)) / sigma2_t,
+                "normal" = diag(n) / sigma2_t,
                 "poisson" = diag(c(exp(X %*% beta_t))),
                 "bernoulli" = diag(c(dh(X %*% beta_t))))
   return(out)
@@ -20,7 +21,7 @@ w_func <- function(sigma2_t, beta_t, y, X, dist) {
 
 fisher_func <- function(sigma2_t, beta_t, y, X, M_1, dist) {
   out <- switch(dist,
-                "normal" = (1/sigma2_t) * t(X) %*% X + M_1,
+                "normal" = (1/sigma2_t) * crossprod(X) + M_1,
                 "poisson" = t(X) %*% w_func(sigma2_t,beta_t,y,X,dist) %*% X + M_1,
                 "bernoulli" = t(X) %*% w_func(sigma2_t, beta_t, y, X, dist) %*% X + M_1)
   return(out)
@@ -36,17 +37,17 @@ y_wgl_func <- function(beta_t, y, X, dist) {
 
 mu_func <- function(sigma2_t, beta_t, y, X, M_1, m, dist) {
   out <- switch(dist,
-                "normal" = solve(fisher_func(sigma2_t, beta_t, y, X, M_1, dist)) %*%
-                  (t(X) %*% w_func(sigma2_t, beta_t, y, X, dist) %*%
-                     y_wgl_func(beta_t, y, X, dist) + M_1 %*% m),
+                "normal" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
+                  (t(X) %*% y_wgl_func(beta_t, y, X, dist))/sigma2_t + M_1 %*% m,
 
-                "poisson" = solve(fisher_func(sigma2_t, beta_t, y, X, M_1, dist)) %*%
-                  (t(X) %*% w_func(sigma2_t, beta_t, y, X, dist)
-                     %*% y_wgl_func(beta_t, y, X, dist) + M_1 %*% m),
 
-                "bernoulli" = solve(fisher_func(sigma2_t, beta_t, y, X, M_1, dist)) %*%
-                  (t(X) %*% w_func(sigma2_t, beta_t, y, X, dist) %*%
-                     y_wgl_func(beta_t, y, X, dist) + M_1 %*% m))
+                "poisson" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
+                  (t(X) %*% (w_func(sigma2_t, beta_t, y, X, dist)
+                     %*% y_wgl_func(beta_t, y, X, dist)) + M_1 %*% m),
+
+                "bernoulli" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
+                  (t(X) %*% (w_func(sigma2_t, beta_t, y, X, dist) %*%
+                     y_wgl_func(beta_t, y, X, dist)) + M_1 %*% m))
   return(out)
 }
 
