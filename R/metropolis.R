@@ -114,7 +114,6 @@ frequentistkiller <-
   }
   y <- model.response(mf, "numeric")
   X <- model.matrix(mf, data)
-
   p <- ncol(X)
 
   # check if default or manual startvalue
@@ -160,7 +159,6 @@ frequentistkiller <-
   if (!any(dim(M) == c(p, p))) {
     stop(paste("\"M\" must be a square matrix of ", p, "x", p))
   }
-
 
   # select a distribution and run the Metropolis-Hastings algorithm
   chain <- switch(dist,

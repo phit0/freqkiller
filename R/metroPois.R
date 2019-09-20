@@ -49,7 +49,7 @@ metroPois <- function(y, X, beta_start, m, M, number_it, dist, notify){
     }
 
     # Check for startvalue issue at iteration 1000
-    if (i == 1000 & all(chain[1:1000,1] == chain[1,1])) {
+    if (i == 1000 & all(chain[1:1000,1] == chain[1,1]) & notify) {
       warning("Proposals are not being accepted in the chain...
               Try different starting values or use the default \"ml_estimate\".")
     }
