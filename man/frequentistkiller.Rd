@@ -4,10 +4,10 @@
 \alias{frequentistkiller}
 \title{Sample betas from IWLS proposal densities via MCMC}
 \usage{
-frequentistkiller(formula, dist, beta_start = "ml_estimate",
-  a0 = 0.001, b0 = 0.001, number_it, m = rep(0, length(beta_start)),
-  M = diag(ncol(model.matrix(formula))), thinning_lag = 1,
-  burnin = 100, notify = TRUE)
+frequentistkiller(formula, data = NULL, dist,
+  beta_start = "ml_estimate", a0 = 0.001, b0 = 0.001, number_it,
+  m = rep(0, length(beta_start)), M = diag(length(beta_start)),
+  thinning_lag = 1, burnin = 100, notify = TRUE)
 }
 \arguments{
 \item{formula}{object of the type formula or a one that can be coerced into

@@ -97,35 +97,75 @@
 #'
 #' ## Bernoulli distributed data
 #' }
-frequentistkiller <- function(formula, dist, beta_start = "ml_estimate",
-                     a0 = 0.001, b0 = 0.001, number_it, m = rep(0, length(beta_start)),
-                     M = diag(ncol(model.matrix(formula))), thinning_lag = 1, burnin = 100, notify =TRUE){
+frequentistkiller <-
+  function(formula, data = NULL, dist, beta_start = "ml_estimate",
+           a0 = 0.001, b0 = 0.001, number_it, m = rep(0, length(beta_start)),
+           M = diag(length(beta_start)), thinning_lag = 1, burnin = 100,
+           notify = TRUE) {
+
+  mf <- model.frame(formula, data)
+  # check if response is numeric
+  if(!is.numeric(model.response(mf, type = "any"))) {
+    stop("response variable has to be numeric")
+  }
+  y <- model.response(mf, "numeric")
+  X <- model.matrix(mf, data)
+
+  p <- ncol(X)
 
   # check if default or manual startvalue
   if(is.character(beta_start)) {
     if (beta_start == "ml_estimate") {
-    beta_start <- beta_init(formula, dist)
+    beta_start <- beta_init(mf, dist)
     } else {
     stop("beta_start can be either a numeric
                vector of appropriate length or default \"ml_estimate\"")
       }
   }
+  # check dimension of beta_start
+  if (length(beta_start) != p) {
+    stop("length of \"beta_start\" must equal the number of covariables in the model")
+  }
+  # check if positive and numeric
+  if (!(is.numeric(number_it) & is.numeric(burnin) & is.numeric(thinning_lag)
+        & (number_it > 0) & (burnin >= 0) & (thinning_lag > 0))) {
+    stop("\"number_it\" \"burnin\" and \"thinning_lag\"
+         must be positive integer numbers")
+  }
+  # check if integer and scalar
+  if (!((round(number_it) == number_it) & (round(burnin) == burnin)
+      & (round(thinning_lag) == thinning_lag) & (length(number_it) == 1L)
+      & (length(burnin) == 1L) & (length(thinning_lag) == 1L))) {
+    stop("\"number_it\" \"burnin\" and \"thinning_lag\"
+         have to be scalar integers")
+  }
+  # check if burnin and thinning do not exceed number of iterations
+  if ((number_it <= burnin) | (number_it <= thinning_lag)) {
+    stop("\"number_it\" must be larger than \"burnin\" and \"thinning_lag\"")
+  }
+  # check if a0 and b0 are ok
+  if (!((is.numeric(a0)) & (is.numeric(b0))
+        & (length(a0) == 1L & length(b0) == 1L))){
+    stop("a0 and b0 have to be either numeric or integer scalar values")
+  }
+  # check dimenstion of m
+  if (p != length(m)) {
+    stop("\"m\" must be of the same lenght as \"beta_start\"!")
+  }
+  # check dimension of M
+  if (!any(dim(M) == c(p, p))) {
+    stop(paste("\"M\" must be a square matrix of ", p, "x", p))
+  }
 
-  if (dist == "poisson") {
 
-    # run algorithm
-    chain <- metroPois(formula, beta_start, m, M, number_it, dist, notify)
-  }
-  else if  (dist == "normal") {
-    chain <- metroNorm(formula, beta_start, a0, b0, m, M, number_it, dist)
-  }
-  else if (dist == "bernoulli"){
-    chain <- metroBer(formula, beta_start, m, M, number_it, dist, notify)
-  }
-  else {
+  # select a distribution and run the Metropolis-Hastings algorithm
+  chain <- switch(dist,
+    "poisson" = metroPois(y, X, beta_start, m, M, number_it, dist, notify),
+    "normal" = metroNorm(y, X, beta_start, a0, b0, m, M, number_it, dist),
+    "bernoulli" =  metroBer(y, X, beta_start, m, M, number_it, dist, notify),
     stop("Wrong distribution name. Choose one of the implemented distributions:
-         \"normal\", \"poisson\" or \"bernoulli\".")
-  }
+         \"normal\", \"poisson\" or \"bernoulli\"."))
+
   # cut off burn in phase
   chain <- chain[burnin:number_it, ]
   # thinning if desired

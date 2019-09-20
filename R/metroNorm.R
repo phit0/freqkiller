@@ -1,10 +1,8 @@
 #############################################
 ###         MCMC for normal data          ###
 #############################################
-metroNorm <- function(formula, beta_start, a0, b0, m, M, number_it, dist){
+metroNorm <- function(y, X, beta_start, a0, b0, m, M, number_it, dist){
 
-  X <- model.matrix(formula)
-  y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
   M_1 <- solve(M)
   M_det <- det(M)
 
