@@ -4,14 +4,17 @@
 \alias{frequentistkiller}
 \title{Sample betas from IWLS proposal densities via MCMC}
 \usage{
-frequentistkiller(formula, dist, beta_start = "ml_estimate",
-  a0 = 0.001, b0 = 0.001, number_it, m = rep(0, length(beta_start)),
-  M = diag(ncol(model.matrix(formula))), thinning_lag = 1,
-  burnin = 100, notify = TRUE)
+frequentistkiller(formula, data = NULL, dist,
+  beta_start = "ml_estimate", a0 = 0.001, b0 = 0.001, number_it,
+  m = rep(0, length(beta_start)), M = diag(length(beta_start)),
+  thinning_lag = 1, burnin = 100, notify = TRUE)
 }
 \arguments{
 \item{formula}{object of the type formula or a one that can be coerced into
 the class formula.}
+
+\item{data}{\code{\link{data.frame}} or matrix with column names that correspont to the values
+specified in the formula.}
 
 \item{dist}{character element either "bernoulli", "normal" or "poisson".}
 
@@ -30,13 +33,16 @@ distribution of the Gibbs sampler for the variance.}
 \item{M}{a numeric symetric noningular square Matrix with same size as the
 amount of regression parameters of interest.}
 
-\item{thinning_lag}{integer from \eqn{[1:100]}}
+\item{thinning_lag}{integer from \eqn{>0}}
 
 \item{burnin}{integer that indicates how many samples will be cut off at the
 beginnign of the chain, the default is 500.}
+
+\item{notify}{If \code{notify = FALSE}, the user will not receive any notifications when
+the algoritm runs.}
 }
 \value{
-A list  of class \code{"\link[=metrohas.object]{metrohas}"} with
+A list  of class \code{"\link[=frequentistkiller.object]{frequentistkiller}"} with
 the following elements:  \cr
 \itemize{
  \item \code{chain}: A vector (if univariate without intercept) or dataframe

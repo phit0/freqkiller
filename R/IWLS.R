@@ -79,9 +79,9 @@ loglik_func <- function(beta_t, sigma2_t, y, X, dist) {
 }
 
 #beta start
-beta_init <- function(formula,dist){
+beta_init <- function(mf, dist){
   out <- switch(dist,
-                "normal" = lm(formula)$coefficients,
-                "poisson" = glm(formula, family = poisson(link = log))$coefficients,
-                "bernoulli" = glm(formula, family = binomial(link = logit))$coefficients)
+                "normal" = lm(mf)$coefficients,
+                "poisson" = glm(mf, family = poisson(link = log))$coefficients,
+                "bernoulli" = glm(mf, family = binomial(link = logit))$coefficients)
 }

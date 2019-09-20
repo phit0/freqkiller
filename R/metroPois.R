@@ -1,10 +1,8 @@
 #############################################
 ###         MCMC for poisson data         ###
 #############################################
-metroPois <- function(formula, beta_start, m, M, number_it, dist, notify){
+metroPois <- function(y, X, beta_start, m, M, number_it, dist, notify){
 
-  X <- model.matrix(formula)
-  y <- as.matrix(model.frame(formula)[paste(formula[2])])[,1]
   M_1 <- solve(M)
   M_det <- det(M)
   # matrix for betas

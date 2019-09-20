@@ -1,18 +1,28 @@
-summary.frequentistkiller <- function(result) {
-  chain <- result$chain
+#' Title
+#'
+#' @param object list of S3 class "frequentistkiller"
+#' @param ... other arguments passed to the summary function, not aplicable for
+#' this method
+#'
+#' @return
+#' @export
+#'
+#' @examples
+summary.frequentistkiller <- function(object, ...) {
+  chain <- object$chain
   res <- list()
 
   ## call
-  res$call <- paste("Call:   frequentistkiller(formula = ", deparse(result$formula),
-                    ",", "number_it =", result$number_it, ",", "dist =", result$dist,")")
+  res$call <- paste("Call:   frequentistkiller(formula = ", deparse(object$formula),
+                    ",", "number_it =", object$number_it, ",", "dist =", object$dist,")")
 
    ## start values
   res$beta_start <- paste("Starting values for beta: ",
-                          deparse(round(result$beta_start, digits = 4)),"")
+                          deparse(round(object$beta_start, digits = 4)),"")
 
   ## startvalues of the gibbs sampler (normal only)
-  if (result$dist == "normal") {
-    res$gibbs <- paste("Prior parameters for variance: ", result$a0, result$b0, "")
+  if (object$dist == "normal") {
+    res$gibbs <- paste("Prior parameters for variance: ", object$a0, object$b0, "")
   }
   ## Summary statistics for the chain
   res$t1 <- "Summary statistics for the sample:"
@@ -40,22 +50,22 @@ summary.frequentistkiller <- function(result) {
   res$br1 <- rep("~", 30)
   res$t2 <- "Prior asumptions for estimated parameters:"
   res$t3 <- "covariance matrix \"M\":"
-  res$M <- result$M
+  res$M <- object$M
   res$t4 <- "expected value \"m\":"
-   res$m <- result$m
+   res$m <- object$m
   res$br2 <-  rep("~", 30)
 
  ## Burnin
-  res$burnin <- paste("Burn in iterations: ", result$burnin, "")
+  res$burnin <- paste("Burn in iterations: ", object$burnin, "")
   ## thinning
-  if (result$thinning == 1) {
+  if (object$thinning == 1) {
     res$thin <- "No thinning was  performed (!)"
   }else{
-    res$thin <- paste("Thinning: Every k =", result$thinning_lag, " sample was retained")
+    res$thin <- paste("Thinning: Every k =", object$thinning_lag, " sample was retained")
   }
   res$br3 <- rep("-", 30)
   ## Number of samples drawn
-  res$samples <- paste("Number of remaining samples: ", nrow(result$chain))
+  res$samples <- paste("Number of remaining samples: ", nrow(object$chain))
 
   lapply(res, FUN = print, quote = FALSE)
   invisible(res)
