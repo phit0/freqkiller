@@ -1,16 +1,15 @@
-# functions for Bernoulli!!
-
+# Response function for Bernoulli dependent variables
 h <- function(x){
   return(1 / (1 + exp(-x)))
 }
 
-dh <- function(x){
+dh <- function(x){                              # First derivative of the response function
   out = exp(x) / (1 + exp(x))^2
-  result <- ifelse(is.nan(out), 0, out)          #using 1-time L`hospital
+  result <- ifelse(is.nan(out), 0, out)         #using 1-time L`hospital
   return(result)
 }
 
-w_func <- function(sigma2_t, beta_t, y, X, dist) {
+w_func <- function(sigma2_t, beta_t, y, X, dist) {  #Returns the diagonal vector of the Weigh
   n = length(y)
   out <- switch(dist,
                 "normal" = diag(n) / sigma2_t,
@@ -37,7 +36,7 @@ y_wgl_func <- function(beta_t, y, X, dist) {
 
 mu_func <- function(sigma2_t, beta_t, y, X, M_1, m, dist) {
   out <- switch(dist,
-                "normal" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
+                "normal" = solve(fisher_func(sigma2_t, beta_t, y, X, M_1, dist)) %*%
                   (t(X) %*% y_wgl_func(beta_t, y, X, dist))/sigma2_t + M_1 %*% m,
 
 

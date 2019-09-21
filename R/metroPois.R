@@ -48,11 +48,12 @@ metroPois <- function(y, X, beta_start, m, M, number_it, dist, notify){
       chain[i+1,] <- chain[i,]
     }
 
-    # Check for startvalue issue at iteration 1000
-    if (i == 1000 & all(chain[1:1000,1] == chain[1,1])) {
-      warning("Proposals are not being accepted in the chain...
-              Try different starting values or use the default \"ml_estimate\".")
-    }
+  }
+
+  # Warning message for the user if the proposals were not accepted
+  if (all(chain[1:10,1] == chain[number_it-10:number_it,1])) {
+    warning("Proposals were apparently not accepted in the chain...
+                Try different starting values or use the default \"ml_estimate\".")
   }
 
   # add covariable names

@@ -62,8 +62,8 @@ metroNorm <- function(y, X, beta_start, a0, b0, m, M, number_it, dist){
     s_chain[i + 1] <- sigma2_t
 
     # Check for startvalue issue at iteration 1000
-    if (i == 1000 & all(chain[1:1000,1] == chain[1,1])) {
-      warning("Proposals are not being accepted in the chain...
+    if (chain[1:10,1] == chain[number_it-10:number_it,1]) {
+      warning("Proposals were apparently not accepted in the chain...
                 Try different starting values or use the default \"ml_estimate\".")
     }
   }
