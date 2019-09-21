@@ -46,7 +46,7 @@ summary.frequentistkiller <- function(object, ...) {
     }
   }
 
-  ## print prior parameters
+  ## printing prior parameters
   res$br1 <- rep("~", 30)
   res$t2 <- "Prior asumptions for estimated parameters:"
   res$t3 <- "covariance matrix \"M\":"
@@ -57,7 +57,7 @@ summary.frequentistkiller <- function(object, ...) {
 
  ## Burnin
   res$burnin <- paste("Burn in iterations: ", object$burnin, "")
-  ## thinning
+  ## Thinning
   if (object$thinning == 1) {
     res$thin <- "No thinning was  performed (!)"
   }else{

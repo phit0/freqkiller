@@ -108,7 +108,8 @@ frequentistkiller <-
            notify = TRUE) {
 
   mf <- model.frame(formula, data)
-  # check if response is numeric
+
+  # checking if response is numeric
   if(!is.numeric(model.response(mf, type = "any"))) {
     stop("response variable has to be numeric")
   }
@@ -117,7 +118,7 @@ frequentistkiller <-
 
   p <- ncol(X)
 
-  # check if default or manual startvalue
+  # checking if default or manual startvalue
   if(is.character(beta_start)) {
     if (beta_start == "ml_estimate") {
     beta_start <- beta_init(mf, dist)
@@ -126,43 +127,43 @@ frequentistkiller <-
                vector of appropriate length or default \"ml_estimate\"")
       }
   }
-  # check dimension of beta_start
+  # checking dimension of beta_start
   if (length(beta_start) != p) {
     stop("length of \"beta_start\" must equal the number of covariables in the model")
   }
-  # check if positive and numeric
+  # checking if positive and numeric
   if (!(is.numeric(number_it) & is.numeric(burnin) & is.numeric(thinning_lag)
         & (number_it > 0) & (burnin >= 0) & (thinning_lag > 0))) {
     stop("\"number_it\" \"burnin\" and \"thinning_lag\"
          must be positive integer numbers")
   }
-  # check if integer and scalar
+  # checking if integer and scalar
   if (!((round(number_it) == number_it) & (round(burnin) == burnin)
       & (round(thinning_lag) == thinning_lag) & (length(number_it) == 1L)
       & (length(burnin) == 1L) & (length(thinning_lag) == 1L))) {
     stop("\"number_it\" \"burnin\" and \"thinning_lag\"
          have to be scalar integers")
   }
-  # check if burnin and thinning do not exceed number of iterations
+  # checking if burnin and thinning do not exceed number of iterations
   if ((number_it <= burnin) | (number_it <= thinning_lag)) {
     stop("\"number_it\" must be larger than \"burnin\" and \"thinning_lag\"")
   }
-  # check if a0 and b0 are ok
+  # checking if a0 and b0 are defined properly
   if (!((is.numeric(a0)) & (is.numeric(b0))
         & (length(a0) == 1L & length(b0) == 1L))){
     stop("a0 and b0 have to be either numeric or integer scalar values")
   }
-  # check dimenstion of m
+  # checking dimensions of m
   if (p != length(m)) {
     stop("\"m\" must be of the same lenght as \"beta_start\"!")
   }
-  # check dimension of M
+  # checking dimensions of M
   if (!any(dim(M) == c(p, p))) {
     stop(paste("\"M\" must be a square matrix of ", p, "x", p))
   }
 
 
-  # select a distribution and run the Metropolis-Hastings algorithm
+  # selecting a distribution and run the Metropolis-Hastings algorithm
   chain <- switch(dist,
     "poisson" = metroPois(y, X, beta_start, m, M, number_it, dist, notify),
     "normal" = metroNorm(y, X, beta_start, a0, b0, m, M, number_it, dist),
@@ -170,19 +171,20 @@ frequentistkiller <-
     stop("Wrong distribution name. Choose one of the implemented distributions:
          \"normal\", \"poisson\" or \"bernoulli\"."))
 
-  # cut off burn in phase
+  # cuting off burn in phase
   chain <- chain[burnin:number_it, ]
+
   # thinning if desired
   if (thinning_lag > 1) {
     chain <- chain[seq(1, nrow(chain), thinning_lag), ]
   }
 
-  # gather objects for the output in a list
+  # gathering objects for the output in a list
   result <- list(chain = chain, thinning_lag = thinning_lag, number_it = number_it,
                  beta_start = beta_start, a0 = a0, b0 = b0, m = m, M = M,
                  burnin = burnin, dist = dist, formula = formula)
 
-  # define a second class "frequentistkiller" for the output, in order to use the summary()
+  # defining a second class "frequentistkiller" for the output, in order to use the summary()
   class(result) <- append("frequentistkiller", "list")
   if (notify) {
     print("DONE")

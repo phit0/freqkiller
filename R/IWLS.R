@@ -3,13 +3,16 @@ h <- function(x){
   return(1 / (1 + exp(-x)))
 }
 
-dh <- function(x){                              # First derivative of the response function
+# First derivative of the response function
+dh <- function(x){
   out = exp(x) / (1 + exp(x))^2
-  result <- ifelse(is.nan(out), 0, out)         #using 1-time L`hospital
+  # using 1-time L`hospital
+  result <- ifelse(is.nan(out), 0, out)
   return(result)
 }
 
-w_func <- function(sigma2_t, beta_t, y, X, dist) {  #Returns the diagonal vector of the Weigh
+# Returns the diagonal vector of the Weights matrix W
+w_func <- function(sigma2_t, beta_t, y, X, dist) {
   n = length(y)
   out <- switch(dist,
                 "normal" = diag(n) / sigma2_t,
@@ -18,6 +21,7 @@ w_func <- function(sigma2_t, beta_t, y, X, dist) {  #Returns the diagonal vector
   return(out)
 }
 
+# Returns the expected Fisher Information
 fisher_func <- function(sigma2_t, beta_t, y, X, M_1, dist) {
   out <- switch(dist,
                 "normal" = (1/sigma2_t) * crossprod(X) + M_1,
@@ -26,6 +30,7 @@ fisher_func <- function(sigma2_t, beta_t, y, X, M_1, dist) {
   return(out)
 }
 
+# Returns the working observations
 y_wgl_func <- function(beta_t, y, X, dist) {
   out <- switch(dist,
                 "normal" = y,
@@ -34,11 +39,11 @@ y_wgl_func <- function(beta_t, y, X, dist) {
   return(out)
 }
 
+# Returns the expectation of the proposal density
 mu_func <- function(sigma2_t, beta_t, y, X, M_1, m, dist) {
   out <- switch(dist,
                 "normal" = solve(fisher_func(sigma2_t, beta_t, y, X, M_1, dist)) %*%
                   (t(X) %*% y_wgl_func(beta_t, y, X, dist))/sigma2_t + M_1 %*% m,
-
 
                 "poisson" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
                   (t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*%  y_wgl_func(beta_t, y, X, dist) + M_1 %*% m),
@@ -48,18 +53,20 @@ mu_func <- function(sigma2_t, beta_t, y, X, M_1, m, dist) {
   return(out)
 }
 
-#beta prior
+# Prior density for the parameter beta
 prior_func <- function(beta_t, m, M_1, M_det) {
   n <- length(beta_t)
   out <- -0.5 * n * log(2 * pi) - 0.5 * log(M_det) - 0.5 * t(beta_t - m) %*% M_1 %*% (beta_t - m)
   return(out)
 }
 
+# Returns a random vector from the proposal density
 proposalfunction <- function(mu, sigma2) {
   out <- mvrnorm(1, mu, sigma2)
   return(as.vector(out))
 }
 
+# Proposal density
 cond_proposaldensity <- function(beta, mu, Fisher) {
   n <- length(beta)
   out <- -0.5 * n * log(2*pi) - 0.5 * log(1 / det(Fisher)) - 0.5 * t(beta - mu) %*% Fisher %*% (beta - mu)
@@ -67,7 +74,7 @@ cond_proposaldensity <- function(beta, mu, Fisher) {
 }
 
 
-#likelihood for beta (assuming independence)
+#likelihood function for beta (assuming independence)
 loglik_func <- function(beta_t, sigma2_t, y, X, dist) {
   out <- switch(dist,
                 "normal" = sum(dnorm(y, X%*%beta_t, sqrt(sigma2_t), log = T)),
@@ -77,7 +84,7 @@ loglik_func <- function(beta_t, sigma2_t, y, X, dist) {
   return(out)
 }
 
-#beta start
+# Sets initial values for beta if desired by the user
 beta_init <- function(mf, dist){
   out <- switch(dist,
                 "normal" = lm(mf)$coefficients,
