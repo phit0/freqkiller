@@ -39,8 +39,9 @@ metroPois <- function(y, X, beta_start, m, M, number_it, dist, notify){
     loglik_star <- loglik_func(proposal, lambda_t, y, X, dist)
 
     alpha <- min(c(prior_star + loglik_star + q_cond_star - prior_t - loglik_t - q_cond_t , 0))
-    # add alphas to output
-    #alphas[i] <- alpha
+    if (any(is.nan(alpha))) {
+      stop("alpha is NaN due to unlikeliy starting values.")
+    }
 
     if (log(runif(1)) < alpha) {
       chain[i+1,] <- proposal
