@@ -1,7 +1,7 @@
 #############################################
 ###         MCMC for normal data          ###
 #############################################
-metroNorm <- function(y, X, beta_start, a0, b0, m, M, number_it, dist){
+metroNorm <- function(y, X, beta_start, a0, b0, m, M, number_it, dist, notify){
 
   M_1 <- solve(M)
   M_det <- det(M)

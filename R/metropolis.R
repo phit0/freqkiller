@@ -171,7 +171,7 @@ frequentistkiller <-
   # select a distribution and run the Metropolis-Hastings algorithm
   chain <- switch(dist,
     "poisson" = metroPois(y, X, beta_start, m, M, number_it, dist, notify),
-    "normal" = metroNorm(y, X, beta_start, a0, b0, m, M, number_it, dist),
+    "normal" = metroNorm(y, X, beta_start, a0, b0, m, M, number_it, dist, notify),
     "bernoulli" =  metroBer(y, X, beta_start, m, M, number_it, dist, notify),
     stop("Wrong distribution name. Choose one of the implemented distributions:
          \"normal\", \"poisson\" or \"bernoulli\"."))
