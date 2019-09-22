@@ -4,13 +4,18 @@
 \alias{summary.frequentistkiller}
 \title{Title}
 \usage{
-\method{summary}{frequentistkiller}(object, ...)
+\method{summary}{frequentistkiller}(object, notify = TRUE, ...)
 }
 \arguments{
 \item{object}{list of S3 class "frequentistkiller"}
 
+\item{notify}{Logical, if FALSE print command will not be executed}
+
 \item{...}{other arguments passed to the summary function, not aplicable for
 this method}
+}
+\value{
+list of all objects printed in the summary
 }
 \description{
 Title
