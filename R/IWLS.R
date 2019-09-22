@@ -30,6 +30,12 @@ fisher_func <- function(sigma2_t, beta_t, y, X, M_1, dist) {
     "normal" = (1/sigma2_t) * crossprod(X) + M_1,
     "poisson" = t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*% X + M_1,
     "bernoulli" = t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*% X + M_1)
+
+  # Checking if one of the Fisher matrices has infinite entries
+  if (any(is.infinite(out))) {
+    stop("Entries of the Fisher matrix are infinite, try with different
+           starting values...")
+  }
   return(out)
 }
 

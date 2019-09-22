@@ -21,13 +21,10 @@ metroBer <- function(y, X, beta_start, m, M, number_it, dist, notify){
     mu_t <- mu_func(F_t, sigma2_t, beta_t, y, X, M_1, m, dist)
 
     # Sampling random proposal
-    proposal <- proposalfunction(mu_t, solve(F_t))
+    proposal <- proposalfunction(mu_t, chol2inv(chol(F_t)))
 
     # IWLS
     F_star <- fisher_func(sigma2_t, proposal, y, X, M_1, dist)
-    if (any(is.infinite(F_star) | any(is.infinite(F_t)))) {
-      stop("Entries of the Fisher matrix are infinite")
-    }
     mu_star <- mu_func(F_star, sigma2_t, proposal, y, X, M_1, m, dist)
 
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
@@ -54,7 +51,7 @@ metroBer <- function(y, X, beta_start, m, M, number_it, dist, notify){
   # Warning message for the user if the proposals were not accepted
   if (all(chain[1:10, 1] == chain[number_it - 10:number_it, 1])) {
     warning("Proposals were apparently not accepted in the chain...
-                Try different starting values or use the default \"ml_estimate\".")
+            Try different starting values or use the default \"ml_estimate\".")
   }
 
 

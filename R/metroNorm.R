@@ -34,11 +34,6 @@ metroNorm <- function(y, X, beta_start, a0, b0, m, M, number_it, dist){
 
     # IWLS
     F_star <- fisher_func(sigma2_t, proposal, y, X, M_1, dist)
-    # check if F has infinite entries
-    if (all(is.infinite(F_star) | all(is.infinite(F_t)))) {
-      stop("Entries of the Fisher matrix are infinite, please
-           choose a different starting value.")
-    }
     mu_star <- mu_func(F_star, sigma2_t, proposal, y, X, M_1, m, dist)
 
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
@@ -55,7 +50,8 @@ metroNorm <- function(y, X, beta_start, a0, b0, m, M, number_it, dist){
                      prior_t - loglik_t - q_cond_t, 0))
     # Check if alpha is NaN
     if (any(is.nan(alpha))) {
-      stop("alpha is NaN due to unlikeliy starting values.")
+      stop("Entries of the Fisher matrix are infinite, try with different
+           starting values...")
     }
 
     # Sampling decision to the chain
@@ -75,7 +71,7 @@ metroNorm <- function(y, X, beta_start, a0, b0, m, M, number_it, dist){
   # Warning message for the user if the proposals were not accepted
   if (all(chain[1:10, 1] == chain[number_it - 10:number_it, 1])) {
     warning("Proposals were apparently not accepted in the chain...
-                Try different starting values or use the default \"ml_estimate\".")
+            Try different starting values or use the default \"ml_estimate\".")
   }
 
   # adding covariable names
