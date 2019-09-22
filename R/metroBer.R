@@ -28,7 +28,7 @@ metroBer <- function(y, X, beta_start, m, M, number_it, dist, notify){
     mu_star <- mu_func(sigma2_t, proposal, y, X, M_1, m, dist)
 
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
-    q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)  #invert in function to avoid re-inverting
+    q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)
 
     # Prior and log-likelihood functions
     prior_t <- prior_func(chain[i,], m, M_1, M_det)
@@ -37,7 +37,9 @@ metroBer <- function(y, X, beta_start, m, M, number_it, dist, notify){
     loglik_star <- loglik_func(proposal, sigma2_t, y, X, dist)
 
     # Calculating the logarithmized acceptance probability
-    alpha <- min(c(prior_star + loglik_star + q_cond_star - prior_t - loglik_t - q_cond_t, 0))
+    alpha <- min(c(prior_star + loglik_star + q_cond_star -
+                     prior_t - loglik_t - q_cond_t, 0))
+    # Check if alpha is NaN
     if (any(is.nan(alpha))) {
       stop("alpha is NaN due to unlikeliy starting values.")
     }
@@ -47,10 +49,10 @@ metroBer <- function(y, X, beta_start, m, M, number_it, dist, notify){
     }else{
       chain[i+1,] <- chain[i,]
     }
-}
+  } # End of the loop
 
   # Warning message for the user if the proposals were not accepted
-  if (all(chain[1:10,1] == chain[number_it-10:number_it,1])) {
+  if (all(chain[1:10, 1] == chain[number_it - 10:number_it, 1])) {
     warning("Proposals were apparently not accepted in the chain...
                 Try different starting values or use the default \"ml_estimate\".")
   }

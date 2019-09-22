@@ -36,7 +36,9 @@ metroPois <- function(y, X, beta_start, m, M, number_it, dist, notify){
     loglik_star <- loglik_func(proposal, lambda_t, y, X, dist)
 
     # Caltulating the logarithmized acceptance probability
-    alpha <- min(c(prior_star + loglik_star + q_cond_star - prior_t - loglik_t - q_cond_t , 0))
+    alpha <- min(c(prior_star + loglik_star + q_cond_star -
+                     prior_t - loglik_t - q_cond_t , 0))
+    # Check for NaN values in alpha
     if (any(is.nan(alpha))) {
       stop("alpha is NaN due to unlikeliy starting values.")
     }
@@ -47,15 +49,13 @@ metroPois <- function(y, X, beta_start, m, M, number_it, dist, notify){
     }else{
       chain[i+1,] <- chain[i,]
     }
-
-  }
+  } # End of the loop
 
   # Warning message for the user if the proposals were not accepted
-  if (all(chain[1:10,1] == chain[number_it-10:number_it,1])) {
+  if (all(chain[1:10, 1] == chain[number_it - 10:number_it, 1])) {
     warning("Proposals were apparently not accepted in the chain...
                 Try different starting values or use the default \"ml_estimate\".")
   }
-
   # adding covariable names
   colnames(chain) <- colnames(X)
   return(chain)

@@ -1,20 +1,23 @@
 #' Title
 #'
 #' @param object list of S3 class "frequentistkiller"
+#' @param notify Logical, if FALSE print command will not be executed
 #' @param ... other arguments passed to the summary function, not aplicable for
 #' this method
 #'
-#' @return
+#' @return list of all objects printed in the summary
 #' @export
+#' @method summary frequentistkiller
 #'
 #' @examples
-summary.frequentistkiller <- function(object, ...) {
+summary.frequentistkiller <- function(object, notify = TRUE, ...) {
   chain <- object$chain
   res <- list()
 
   ## call
-  res$call <- paste("Call:   frequentistkiller(formula = ", deparse(object$formula),
-                    ",", "number_it =", object$number_it, ",", "dist =", object$dist,")")
+  res$call <-
+    paste("Call:   frequentistkiller(formula = ", deparse(object$formula),
+          ",", "number_it =", object$number_it, ",", "dist =", object$dist,")")
 
    ## start values
   res$beta_start <- paste("Starting values for beta: ",
@@ -22,14 +25,16 @@ summary.frequentistkiller <- function(object, ...) {
 
   ## startvalues of the gibbs sampler (normal only)
   if (object$dist == "normal") {
-    res$gibbs <- paste("Prior parameters for variance: ", object$a0, object$b0, "")
+    res$gibbs <-
+      paste("Prior parameters for variance: ", object$a0, object$b0, "")
   }
   ## Summary statistics for the chain
   res$t1 <- "Summary statistics for the sample:"
   if (is.null(ncol(chain))) { # if univariate
-    res$coefficients <- matrix(c(mean(chain), median(chain), sd(chain),
-                         quantile(chain, probs = 0.025), quantile(chain, probs = 0.975)),
-                         nrow = 1)
+    res$coefficients <-
+      matrix(c(mean(chain), median(chain), sd(chain),
+      quantile(chain, probs = 0.025), quantile(chain, probs = 0.975)), nrow = 1)
+
     colnames(res$coefficients) <- c("mean", "median", "sd", "2.5% quantile", "97.5% quantile")
     rownames(res$coefficients) <- ifelse(is.null(names(chain)), "x1", names(chain))
   }else{ # if multivariate
@@ -61,13 +66,16 @@ summary.frequentistkiller <- function(object, ...) {
   if (object$thinning == 1) {
     res$thin <- "No thinning was  performed (!)"
   }else{
-    res$thin <- paste("Thinning: Every k =", object$thinning_lag, " sample was retained")
+    res$thin <-
+      paste("Thinning: Every k =", object$thinning_lag, " sample was retained")
   }
   res$br3 <- rep("-", 30)
   ## Number of samples drawn
   res$samples <- paste("Number of remaining samples: ", nrow(object$chain))
 
-  lapply(res, FUN = print, quote = FALSE)
+  if (notify) {
+    lapply(res, FUN = print, quote = FALSE)
+  }
   invisible(res)
 }
 

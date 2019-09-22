@@ -1,6 +1,6 @@
-context("Algorithm run")
+context("Algorithm runs")
 
-test_that("Algorithm runs", {
+test_that("Algorithm and summary method work", {
   set.seed(42)
   n <- 10
   a <- runif(n)
@@ -9,15 +9,16 @@ test_that("Algorithm runs", {
   df2 <- data.frame(y = rpois(n, exp(eta)), x = a)
   df3 <- data.frame(y = rbinom(10, 1, exp(eta)/(1 + exp(eta))), x = a)
 
-  expect_error(frequentistkiller(y ~ x, df1, dist = "normal",
+  expect_error((t1 <- frequentistkiller(y ~ x - 1, df1, dist = "normal",
                                 number_it = 1000,
-                                burnin = 0), NA)
-  expect_error(frequentistkiller(y ~ x, df2, dist = "poisson",
+                                burnin = 0)), NA)
+  expect_error((t2 <- frequentistkiller(y ~ x, df2, dist = "poisson",
                                  number_it = 1000,
-                                 burnin = 0), NA)
-  expect_error(frequentistkiller(y ~ x, df3, dist = "bernoulli",
+                                 burnin = 0)), NA)
+  expect_error((t3 <- frequentistkiller(y ~ x, df3, dist = "bernoulli",
                                  number_it = 1000,
-                                 burnin = 0), NA)
+                                 burnin = 0)), NA)
+  expect_error(summary(t1, notify = FALSE), NA)
+  expect_error(summary(t2, notify = FALSE), NA)
+  expect_error(summary(t3, notify = FALSE), NA)
 })
-
-
