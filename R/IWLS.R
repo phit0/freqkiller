@@ -48,8 +48,8 @@ y_wgl_func <- function(beta_t, y, X, dist) {
 mu_func <- function(sigma2_t, beta_t, y, X, M_1, m, dist) {
   out <- switch(
     dist,
-    "normal" = solve(fisher_func(sigma2_t, beta_t, y, X, M_1, dist)) %*%
-      (t(X) %*% y_wgl_func(beta_t, y, X, dist))/sigma2_t + M_1 %*% m,
+    "normal" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
+      (t(X) %*% y_wgl_func(beta_t, y, X, dist)/sigma2_t + M_1 %*% m),
 
     "poisson" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
       (t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*%
