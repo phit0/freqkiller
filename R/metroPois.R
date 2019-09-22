@@ -18,14 +18,17 @@ metroPois <- function(y, X, beta_start, m, M, number_it, dist, notify){
 
     # IWLS
     F_t <- fisher_func(lambda_t, beta_t, y, X, M_1, dist)
-    mu_t <- mu_func(lambda_t, beta_t, y, X, M_1, m, dist)
+    mu_t <- mu_func(F_t, lambda_t, beta_t, y, X, M_1, m, dist)
 
     # Picking proposal
     proposal <- proposalfunction(mu_t, solve(F_t))
 
     # IWLS
     F_star <- fisher_func(lambda_t, proposal, y, X, M_1, dist)
-    mu_star <- mu_func(lambda_t, proposal, y, X, M_1, m, dist)
+    if (any(is.infinite(F_star) | any(is.infinite(F_t)))) {
+      stop("Entries of the Fisher matrix are infinite")
+    }
+    mu_star <- mu_func(F_star, lambda_t, proposal, y, X, M_1, m, dist)
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
     q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)
 
@@ -38,10 +41,6 @@ metroPois <- function(y, X, beta_start, m, M, number_it, dist, notify){
     # Caltulating the logarithmized acceptance probability
     alpha <- min(c(prior_star + loglik_star + q_cond_star -
                      prior_t - loglik_t - q_cond_t , 0))
-    # Check for NaN values in alpha
-    if (any(is.nan(alpha))) {
-      stop("alpha is NaN due to unlikeliy starting values.")
-    }
 
     # Sampling decision to the chain
     if (log(runif(1)) < alpha) {

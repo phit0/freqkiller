@@ -50,6 +50,7 @@ the following elements:  \cr
  column.
  \item  The values of all arguments of the function call as specified by the
  user}
+The information can be displayed via \code{summary()}.
 }
 \description{
 The framework of the model are bayesian generalized linear models
@@ -62,7 +63,7 @@ Available distributions and associated link functions are:
   \item "bernoulli" - logit link
   \item "normal" - identity link
   \item "poisson" - log link}
-The function executes the Metropolis Hashtings Algorithm, where a Normal
+The function executes the Metropolis-Hashtings algorithm, where a Normal
 proposal density based on prior information and the current beta is generated
 (and updated) by means of iteratively weighted least squares. A random sample
 from the proposal density is then evaluated according to the loglikelihood,

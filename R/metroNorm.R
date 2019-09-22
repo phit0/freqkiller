@@ -25,16 +25,21 @@ metroNorm <- function(y, X, beta_start, a0, b0, m, M, number_it, dist){
 
   for (i in 1:number_it) {
 
-    # IWLS
+    # IWLS; beta_t is only a placeholder here
     F_t <- fisher_func(sigma2_t, beta_t, y, X, M_1, dist)
-    mu_t <- mu_func(sigma2_t, beta_t, y, X, M_1, m, dist)
+    mu_t <- mu_func(F_t, sigma2_t, beta_t, y, X, M_1, m, dist)
 
     # Picking proposal
     proposal <- proposalfunction(mu_t, chol2inv(chol(F_t)))
 
     # IWLS
     F_star <- fisher_func(sigma2_t, proposal, y, X, M_1, dist)
-    mu_star <- mu_func(sigma2_t, proposal, y, X, M_1, m, dist)
+    # check if F has infinite entries
+    if (all(is.infinite(F_star) | all(is.infinite(F_t)))) {
+      stop("Entries of the Fisher matrix are infinite, please
+           choose a different starting value.")
+    }
+    mu_star <- mu_func(F_star, sigma2_t, proposal, y, X, M_1, m, dist)
 
     q_cond_star <- cond_proposaldensity(chain[i,], mu_star, F_star)
     q_cond_t <- cond_proposaldensity(proposal, mu_t, F_t)

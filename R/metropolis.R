@@ -10,7 +10,7 @@
 #'   \item "bernoulli" - logit link
 #'   \item "normal" - identity link
 #'   \item "poisson" - log link}
-#' The function executes the Metropolis Hashtings Algorithm, where a Normal
+#' The function executes the Metropolis-Hashtings algorithm, where a Normal
 #' proposal density based on prior information and the current beta is generated
 #' (and updated) by means of iteratively weighted least squares. A random sample
 #' from the proposal density is then evaluated according to the loglikelihood,
@@ -71,6 +71,7 @@
 #'  column.
 #'  \item  The values of all arguments of the function call as specified by the
 #'  user}
+#' The information can be displayed via \code{summary()}.
 #'
 #' @importFrom MASS mvrnorm
 #' @export
@@ -167,7 +168,6 @@ frequentistkiller <-
   if (!any(dim(M) == c(p, p))) {
     stop(paste("\"M\" must be a square matrix of ", p, "x", p))
   }
-
   # select a distribution and run the Metropolis-Hastings algorithm
   chain <- switch(dist,
     "poisson" = metroPois(y, X, beta_start, m, M, number_it, dist, notify),

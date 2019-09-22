@@ -45,17 +45,17 @@ y_wgl_func <- function(beta_t, y, X, dist) {
 }
 
 # Returns the expectation of the proposal density
-mu_func <- function(sigma2_t, beta_t, y, X, M_1, m, dist) {
+mu_func <- function(F_t, sigma2_t, beta_t, y, X, M_1, m, dist) {
   out <- switch(
     dist,
-    "normal" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
+    "normal" = chol2inv(chol(F_t)) %*%
       (t(X) %*% y_wgl_func(beta_t, y, X, dist)/sigma2_t + M_1 %*% m),
 
-    "poisson" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
+    "poisson" = chol2inv(chol(F_t)) %*%
       (t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*%
          y_wgl_func(beta_t, y, X, dist) + M_1 %*% m),
 
-    "bernoulli" = chol2inv(chol(fisher_func(sigma2_t, beta_t, y, X, M_1, dist))) %*%
+    "bernoulli" = chol2inv(chol(F_t)) %*%
       (t(X * w_func(sigma2_t, beta_t, y, X, dist)) %*%
          y_wgl_func(beta_t, y, X, dist) + M_1 %*% m)
     )
