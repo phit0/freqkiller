@@ -115,7 +115,6 @@ frequentistkiller <-
   }
   y <- model.response(mf, "numeric")
   X <- model.matrix(mf, data)
-
   p <- ncol(X)
 
   # checking if default or manual startvalue
@@ -162,8 +161,7 @@ frequentistkiller <-
     stop(paste("\"M\" must be a square matrix of ", p, "x", p))
   }
 
-
-  # selecting a distribution and run the Metropolis-Hastings algorithm
+  # select a distribution and run the Metropolis-Hastings algorithm
   chain <- switch(dist,
     "poisson" = metroPois(y, X, beta_start, m, M, number_it, dist, notify),
     "normal" = metroNorm(y, X, beta_start, a0, b0, m, M, number_it, dist),
