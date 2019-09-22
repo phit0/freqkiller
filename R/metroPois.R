@@ -49,7 +49,7 @@ metroPois <- function(y, X, beta_start, m, M, number_it, dist, notify){
   } # End of the loop
 
   # Warning message for the user if the proposals were not accepted
-  if (all(chain[1:10, 1] == chain[number_it - 10:number_it, 1])) {
+  if (all(chain[1:10, 1] == chain[number_it - 10:number_it, 1]) & notify) {
     warning("Proposals were apparently not accepted in the chain...
              Try different starting values or use the default \"ml_estimate\".")
   }
