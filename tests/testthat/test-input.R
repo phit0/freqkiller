@@ -15,7 +15,8 @@ test_that("Data type can be used", {
 
 test_that("correct distribution name", {
   expect_error(
-    frequentistkiller(y ~ x, df, dist = "typo", beta_start = c(1,1), number_it = 1000),
+    frequentistkiller(y ~ x, df, dist = "typo", beta_start = c(1,1),
+                      number_it = 1000),
   "Wrong distribution name. Choose one of the implemented distributions:
          \"normal\", \"poisson\" or \"bernoulli\".")
   })
@@ -29,7 +30,7 @@ test_that("correct beta", {
 
   expect_error(
     frequentistkiller(y ~ x, df, dist = "normal", beta_start = 1, number_it = 1000),
-    "length of \"beta_start\" must equal the number of covariables in the model")
+    "length of \"beta_start\" must equal the number of covariables")
 })
 
 test_that("m and M have correct dimensions", {
