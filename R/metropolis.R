@@ -125,6 +125,11 @@ frequentistkiller <-
   X <- model.matrix(mf, data)
   p <- ncol(X)
 
+  # checking if X is of full rank
+  if (qr(X)$rank != p){
+    stop("There is linear dependence between the covariates!")
+  }
+
   # checking if default or manual startvalue
   if(is.character(beta_start)) {
     if (beta_start == "ml_estimate") {
